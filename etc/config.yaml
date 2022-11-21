@@ -1,8 +1,5 @@
 
-links:
-
-  default:
-
+symlinks:
     ~/.aws: .aws
     ~/.bash_core: .bash_core
     ~/.bash_profile: .bash_profile

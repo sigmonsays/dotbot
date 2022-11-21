@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
+
+	gologging "github.com/sigmonsays/go-logging"
 )
 
 func main() {
@@ -24,7 +26,7 @@ func main() {
 			},
 		},
 		Before: func(c *cli.Context) error {
-			loglevel := c.GlobalString("loglevel")
+			loglevel := c.String("loglevel")
 			if loglevel != "" {
 				gologging.SetLogLevel(loglevel)
 			}
@@ -38,6 +40,7 @@ func main() {
 		Aliases: []string{"l"},
 		Usage:   "create links",
 		Action:  link.Run,
+		Flags:   link.Flags(),
 	})
 	app.Run(os.Args)
 }

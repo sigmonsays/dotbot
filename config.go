@@ -10,7 +10,7 @@ import (
 
 // main configuration structure
 type AppConfig struct {
-	Links map[string][]string `yaml:"links"`
+	Symlinks map[string]string `yaml:"symlinks"`
 }
 
 func (c *AppConfig) LoadYaml(path string) error {
