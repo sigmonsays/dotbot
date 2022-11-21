@@ -20,16 +20,27 @@ func (me *Link) Flags() []cli.Flag {
 			Usage:   "config file",
 			Aliases: []string{"c"},
 		},
+		&cli.BoolFlag{
+			Name:    "pretend",
+			Usage:   "pretend mode",
+			Aliases: []string{"p"},
+		},
 	}
 	return nil
 }
-func (me *Link) Run(c *cli.Context) error {
 
+type LinkOptions struct {
+	Pretend bool
+}
+
+func (me *Link) Run(c *cli.Context) error {
+	opts := &LinkOptions{}
 	configfiles := c.StringSlice("config")
+	opts.Pretend = c.Bool("pretend")
 	log.Tracef("%d files to execute", len(configfiles))
 
 	for _, filename := range configfiles {
-		err := me.RunFile(filename)
+		err := me.RunFile(opts, filename)
 		if err != nil {
 			log.Warnf("RunFile %s: %s", filename, err)
 		}
@@ -38,7 +49,21 @@ func (me *Link) Run(c *cli.Context) error {
 	return nil
 }
 
-func (me *Link) RunFile(path string) error {
+type Run struct {
+	HomeDir string
+	Links   []*LinkInfo
+}
+type LinkInfo struct {
+	Target      string
+	Link        string
+	AbsLink     string
+	DestExists  bool
+	PointsTo    string
+	IsValid     bool
+	NeedsCreate bool
+}
+
+func (me *Link) RunFile(opts *LinkOptions, path string) error {
 	log.Tracef("runfile %s", path)
 	cfg := GetDefaultConfig()
 	err := cfg.LoadYaml(path)
@@ -49,11 +74,40 @@ func (me *Link) RunFile(path string) error {
 		cfg.PrintConfig()
 	}
 
+	run, err := me.CompileRun(cfg.Symlinks)
+	if err != nil {
+		return err
+	}
+
+	for _, li := range run.Links {
+		if opts.Pretend {
+			if li.NeedsCreate {
+				log.Infof("create link %q %q", li.AbsLink, li.Target)
+			}
+			continue
+		}
+		err = os.Symlink(li.AbsLink, li.Target)
+		if err != nil {
+			log.Warnf("Symlink %s", err)
+			continue
+		}
+		log.Infof("symlink %s", li.Target)
+	}
+	return nil
+
+}
+
+func (me *Link) CompileRun(symlinks map[string]string) (*Run, error) {
+	ret := &Run{}
+
 	usr, _ := user.Current()
 	homedir := usr.HomeDir
 	log.Tracef("homedir is %s", homedir)
 
-	for target, link := range cfg.Symlinks {
+	for target, link := range symlinks {
+
+		li := &LinkInfo{}
+		ret.Links = append(ret.Links, li)
 
 		// resolve target tilde prefix
 		if strings.HasPrefix(target, "~/") {
@@ -69,9 +123,14 @@ func (me *Link) RunFile(path string) error {
 		log.Tracef("abslink %s", abslink)
 		log.Tracef("target %s", target)
 
+		li.Target = target
+		li.Link = link
+		li.AbsLink = abslink
+
 		// stat dest and check if destination exists and is a symlink
 		dest, err := os.Lstat(target)
 		dest_exists := (err == nil)
+		li.DestExists = dest_exists
 		log.Tracef("target exists %v", dest_exists)
 		is_symlink := false
 		pointsto := ""
@@ -84,6 +143,7 @@ func (me *Link) RunFile(path string) error {
 				log.Warnf("Readlink %s", err)
 			}
 		}
+		li.PointsTo = pointsto
 
 		is_valid := true
 		if is_symlink {
@@ -92,8 +152,8 @@ func (me *Link) RunFile(path string) error {
 				is_valid = false
 				log.Tracef("invalid link points to %s but should be %s", abslink, pointsto)
 			}
-
 		}
+		li.IsValid = is_valid
 
 		if dest_exists && is_symlink && is_valid {
 			log.Tracef("%s already created", abslink)
@@ -101,13 +161,9 @@ func (me *Link) RunFile(path string) error {
 			continue
 		}
 
-		err = os.Symlink(abslink, target)
-		if err != nil {
-			log.Warnf("Symlink %s", err)
-			continue
-		}
-		log.Infof("symlink %s", target)
+		li.NeedsCreate = true
 
 	}
-	return nil
+
+	return ret, nil
 }
