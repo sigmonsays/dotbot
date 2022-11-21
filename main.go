@@ -21,7 +21,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "loglevel",
 				Aliases: []string{"l"},
-				Value:   "",
+				Value:   "info",
 				Usage:   "set log level",
 			},
 		},

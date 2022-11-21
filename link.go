@@ -79,6 +79,8 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 		return err
 	}
 
+	created := 0
+
 	for _, li := range run.Links {
 		if opts.Pretend {
 			if li.NeedsCreate {
@@ -86,13 +88,26 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 			}
 			continue
 		}
-		err = os.Symlink(li.AbsLink, li.Target)
-		if err != nil {
-			log.Warnf("Symlink %s", err)
-			continue
+
+		if li.NeedsCreate {
+
+			if li.DestExists {
+				os.Remove(li.Target)
+			}
+
+			log.Infof("symlink %s", li.Target)
+			err = os.Symlink(li.AbsLink, li.Target)
+			if err != nil {
+				log.Warnf("Symlink %s", err)
+				continue
+			}
+			created++
 		}
-		log.Infof("symlink %s", li.Target)
 	}
+	if created > 0 {
+		log.Infof("created %d links", created)
+	}
+
 	return nil
 
 }
@@ -103,6 +118,7 @@ func (me *Link) CompileRun(symlinks map[string]string) (*Run, error) {
 	usr, _ := user.Current()
 	homedir := usr.HomeDir
 	log.Tracef("homedir is %s", homedir)
+	ret.HomeDir = homedir
 
 	for target, link := range symlinks {
 
@@ -119,6 +135,7 @@ func (me *Link) CompileRun(symlinks map[string]string) (*Run, error) {
 			log.Warnf("Abs %s: %s", link, err)
 			continue
 		}
+		log.Tracef("---")
 		log.Tracef("symlink %s to %s", abslink, target)
 		log.Tracef("abslink %s", abslink)
 		log.Tracef("target %s", target)
@@ -158,10 +175,10 @@ func (me *Link) CompileRun(symlinks map[string]string) (*Run, error) {
 		if dest_exists && is_symlink && is_valid {
 			log.Tracef("%s already created", abslink)
 			log.Tracef("points to %s", pointsto)
-			continue
+		} else {
+			li.NeedsCreate = true
 		}
-
-		li.NeedsCreate = true
+		log.Tracef("needs_create:%v", li.NeedsCreate)
 
 	}
 
