@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -10,7 +9,6 @@ import (
 )
 
 func main() {
-	fmt.Printf("dotbot")
 
 	ctx := &Context{}
 	link := &Link{ctx}
