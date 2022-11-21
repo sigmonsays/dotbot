@@ -66,18 +66,16 @@ func (me *Link) RunFile(path string) error {
 			continue
 		}
 		log.Tracef("symlink %s to %s", abslink, target)
+		log.Tracef("abslink %s", abslink)
+		log.Tracef("target %s", target)
 
 		// stat dest and check if destination exists and is a symlink
 		dest, err := os.Lstat(target)
 		dest_exists := (err == nil)
 		log.Tracef("target exists %v", dest_exists)
-		if err == nil {
-			ftype := dest.Mode().Type()
-			log.Tracef("target filetype %d", ftype)
-		}
 		is_symlink := false
 		pointsto := ""
-		if dest.Mode()&os.ModeSymlink != 0 {
+		if dest_exists && dest.Mode()&os.ModeSymlink != 0 {
 			is_symlink = true
 			link, err := os.Readlink(target)
 			if err == nil {
@@ -87,7 +85,17 @@ func (me *Link) RunFile(path string) error {
 			}
 		}
 
-		if dest_exists && is_symlink {
+		is_valid := true
+		if is_symlink {
+			// evaluate what it points to
+			if pointsto != abslink {
+				is_valid = false
+				log.Tracef("invalid link points to %s but should be %s", abslink, pointsto)
+			}
+
+		}
+
+		if dest_exists && is_symlink && is_valid {
 			log.Tracef("%s already created", abslink)
 			log.Tracef("points to %s", pointsto)
 			continue
@@ -96,7 +104,9 @@ func (me *Link) RunFile(path string) error {
 		err = os.Symlink(abslink, target)
 		if err != nil {
 			log.Warnf("Symlink %s", err)
+			continue
 		}
+		log.Infof("symlink %s", target)
 
 	}
 	return nil
