@@ -44,20 +44,20 @@ func main() {
 	ctx.addCommand(&cli.Command{
 		Name:    "link",
 		Aliases: []string{"l"},
-		Usage:   "create links",
+		Usage:   "create symlinks",
 		Action:  link.Run,
 		Flags:   link.Flags(),
 	})
 	ctx.addCommand(&cli.Command{
 		Name:    "status",
 		Aliases: []string{"s"},
-		Usage:   "status",
+		Usage:   "print status as json",
 		Action:  status.Run,
 		Flags:   status.Flags(),
 	})
 	ctx.addCommand(&cli.Command{
 		Name:   "cleanup",
-		Usage:  "show unreferenced config",
+		Usage:  "show unreferenced files",
 		Action: cleanup.Run,
 		Flags:  cleanup.Flags(),
 	})
