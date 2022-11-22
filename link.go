@@ -38,6 +38,11 @@ func (me *Link) Run(c *cli.Context) error {
 	opts.Pretend = c.Bool("pretend")
 	log.Tracef("%d files to execute", len(configfiles))
 
+	if len(configfiles) == 0 {
+		log.Warnf("Nothing to do, try passing -c dotbot.yaml ")
+		return nil
+	}
+
 	for _, filename := range configfiles {
 		err := me.RunFile(opts, filename)
 		if err != nil {
