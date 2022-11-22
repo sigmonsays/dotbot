@@ -12,6 +12,8 @@ func main() {
 
 	ctx := &Context{}
 	link := &Link{ctx}
+	status := &Status{ctx}
+
 	app := &cli.App{
 		Name:  "dotbot",
 		Usage: "manage dot files",
@@ -21,6 +23,11 @@ func main() {
 				Aliases: []string{"l"},
 				Value:   "info",
 				Usage:   "set log level",
+			},
+			&cli.StringSliceFlag{
+				Name:    "config",
+				Aliases: []string{"c"},
+				Usage:   "config file",
 			},
 		},
 		Before: func(c *cli.Context) error {
@@ -40,13 +47,12 @@ func main() {
 		Action:  link.Run,
 		Flags:   link.Flags(),
 	})
+	ctx.addCommand(&cli.Command{
+		Name:    "status",
+		Aliases: []string{"s"},
+		Usage:   "status",
+		Action:  status.Run,
+		Flags:   status.Flags(),
+	})
 	app.Run(os.Args)
-}
-
-type Context struct {
-	app *cli.App
-}
-
-func (me *Context) addCommand(cmd *cli.Command) {
-	me.app.Commands = append(me.app.Commands, cmd)
 }
