@@ -16,7 +16,7 @@ func (me *Status) Flags() []cli.Flag {
 }
 
 func (me *Status) Run(c *cli.Context) error {
-	configfiles := c.StringSlice("config")
+	configfiles := getConfigFiles(c)
 
 	for _, filename := range configfiles {
 		err := me.RunFile(filename)

@@ -32,7 +32,7 @@ type LinkOptions struct {
 
 func (me *Link) Run(c *cli.Context) error {
 	opts := &LinkOptions{}
-	configfiles := c.StringSlice("config")
+	configfiles := getConfigFiles(c)
 	opts.Pretend = c.Bool("pretend")
 	log.Tracef("%d files to execute", len(configfiles))
 

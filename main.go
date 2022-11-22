@@ -56,11 +56,3 @@ func main() {
 	})
 	app.Run(os.Args)
 }
-
-type Context struct {
-	app *cli.App
-}
-
-func (me *Context) addCommand(cmd *cli.Command) {
-	me.app.Commands = append(me.app.Commands, cmd)
-}
