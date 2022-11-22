@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -62,6 +64,11 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 		return err
 	}
 
+	err = Mkdirs(run.HomeDir, cfg.Mkdirs)
+	if err != nil {
+		return err
+	}
+
 	created := 0
 
 	for _, li := range run.Links {
@@ -93,4 +100,21 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 
 	return nil
 
+}
+
+func Mkdirs(homedir string, paths []string) error {
+	dirMode := os.FileMode(0755)
+	for _, path := range paths {
+		if strings.HasPrefix(path, "~/") {
+			path = filepath.Join(homedir, path[2:])
+		}
+
+		st, err := os.Stat(path)
+		if err == nil && st.IsDir() == false {
+
+			log.Infof("mkdir %s", path)
+			os.MkdirAll(path, dirMode)
+		}
+	}
+	return nil
 }
