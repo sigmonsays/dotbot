@@ -13,6 +13,7 @@ func main() {
 	ctx := &Context{}
 	link := &Link{ctx}
 	status := &Status{ctx}
+	cleanup := &Cleanup{ctx}
 
 	app := &cli.App{
 		Name:  "dotbot",
@@ -53,6 +54,12 @@ func main() {
 		Usage:   "status",
 		Action:  status.Run,
 		Flags:   status.Flags(),
+	})
+	ctx.addCommand(&cli.Command{
+		Name:   "cleanup",
+		Usage:  "show unreferenced config",
+		Action: cleanup.Run,
+		Flags:  cleanup.Flags(),
 	})
 	app.Run(os.Args)
 }
