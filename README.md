@@ -33,18 +33,18 @@ If no configuration file is given, the default is assumed to be
 
      NAME:
         dotbot - manage dot files
-  
+     
      USAGE:
         dotbot [global options] command [command options] [arguments...]
-  
+     
      COMMANDS:
-        link, l    create links
-        status, s  status
-        cleanup    show unreferenced config
+        link, l    create symlinks
+        status, s  print status as json
+        cleanup    show unreferenced files
         help, h    Shows a list of commands or help for one command
-  
+     
      GLOBAL OPTIONS:
         --loglevel value, -l value                             set log level (default: "info")
         --config value, -c value [ --config value, -c value ]  config file
         --help, -h                                             show help (default: false)
-  
+     
