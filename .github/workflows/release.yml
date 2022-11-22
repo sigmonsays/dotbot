@@ -1,4 +1,4 @@
-name: Build debian package (.deb)
+name: Build
 
 on:
   push:
