@@ -110,8 +110,11 @@ func Mkdirs(homedir string, paths []string) error {
 		}
 
 		st, err := os.Stat(path)
-		if err == nil && st.IsDir() == false {
-
+		if err == nil && st.Mode().IsRegular() {
+			log.Warnf("file exists for mkdir %s", path)
+			continue
+		}
+		if err != nil {
 			log.Infof("mkdir %s", path)
 			os.MkdirAll(path, dirMode)
 		}
