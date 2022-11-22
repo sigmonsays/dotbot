@@ -1,4 +1,5 @@
-
+mkdirs:
+  - ~/asdf
 symlinks:
     ~/.aws: .aws
     ~/.bash_core: .bash_core

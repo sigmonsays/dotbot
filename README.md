@@ -6,6 +6,7 @@
 
 - [dotbot](#dotbot)
 - [TLDR](#tldr)
+- [Configuration](#configuration)
 - [Usage](#usage)
 
 <!-- markdown-toc end -->
@@ -32,6 +33,23 @@ If no configuration file is given, the default is assumed to be
      
      dotbot -c dotbot.yaml link
      
+# Configuration
+
+dotbot -c is used to provide what configuration to run. Multiple configuration
+files can be specified by passing -c with a file multiple times.
+
+If no configuration file is provided, dotbot.yaml is assumed if it exists in the
+current directory.
+
+Sample configuration
+
+     mkdirs:
+       - ~/asdf
+     symlinks:
+         ~/.bash_profile: .bash_profile
+         ~/.bashrc: .bashrc
+
+
 # Usage
 
      NAME:
