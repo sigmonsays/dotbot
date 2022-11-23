@@ -21,8 +21,10 @@ type Run struct {
 	Links   []*LinkInfo
 }
 type LinkInfo struct {
+	OrigTarget  string
 	Target      string
 	Link        string
+	FileType    string
 	AbsLink     string
 	DestExists  bool
 	PointsTo    string
@@ -37,6 +39,7 @@ func CompileRun(symlinks map[string]string) (*Run, error) {
 
 		li := &LinkInfo{}
 		ret.Links = append(ret.Links, li)
+		li.OrigTarget = target
 
 		// resolve target tilde prefix
 		if strings.HasPrefix(target, "~/") {
@@ -56,6 +59,16 @@ func CompileRun(symlinks map[string]string) (*Run, error) {
 		li.Target = target
 		li.Link = link
 		li.AbsLink = abslink
+
+		target_stat, err := os.Stat(link)
+		li.FileType = "unknown"
+		if err == nil {
+			if target_stat.Mode().IsDir() {
+				li.FileType = "dir"
+			} else if target_stat.Mode().IsRegular() {
+				li.FileType = "file"
+			}
+		}
 
 		// stat dest and check if destination exists and is a symlink
 		dest, err := os.Lstat(target)
