@@ -51,7 +51,7 @@ func main() {
 	ctx.addCommand(&cli.Command{
 		Name:    "status",
 		Aliases: []string{"s"},
-		Usage:   "print status as json",
+		Usage:   "print status table",
 		Action:  status.Run,
 		Flags:   status.Flags(),
 	})
