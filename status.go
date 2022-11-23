@@ -71,6 +71,7 @@ func (me *Status) RunFile(path string, asJson, showAll bool) error {
 	// table output
 
 	table := tablewriter.NewWriter(os.Stdout)
+	table.SetBorder(false)
 	table.SetHeader([]string{
 		"Target",
 		"Type",
