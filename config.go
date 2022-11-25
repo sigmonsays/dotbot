@@ -56,7 +56,9 @@ func (me *AppConfig) PrintConfig() {
 }
 
 func GetDefaultConfig() *AppConfig {
-	return &AppConfig{}
+	cfg := &AppConfig{}
+	cfg.Symlinks = make(map[string]string, 0)
+	return cfg
 }
 
 func (c *AppConfig) LoadDefault() {

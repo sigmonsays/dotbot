@@ -165,8 +165,12 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		return err
 	}
 
+
 	// build config using current directory listing
 	for _, filename := range filenames {
+		if filename == ".git" {
+			continue
+		}
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
