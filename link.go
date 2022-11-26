@@ -40,7 +40,7 @@ type LinkOptions struct {
 
 func (me *Link) Run(c *cli.Context) error {
 	opts := &LinkOptions{}
-	configfiles := getConfigFiles(c)
+	configfiles := me.ctx.getConfigFiles(c)
 	opts.Pretend = c.Bool("pretend")
 	opts.AutoMode = c.Bool("auto")
 	log.Tracef("%d files to execute", len(configfiles))
@@ -164,7 +164,6 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 	if err != nil {
 		return err
 	}
-
 
 	// build config using current directory listing
 	for _, filename := range filenames {

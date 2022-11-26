@@ -29,7 +29,7 @@ func (me *Status) Flags() []cli.Flag {
 }
 
 func (me *Status) Run(c *cli.Context) error {
-	configfiles := getConfigFiles(c)
+	configfiles := me.ctx.getConfigFiles(c)
 	asJson := c.Bool("json")
 	showAll := c.Bool("all")
 
