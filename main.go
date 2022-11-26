@@ -37,6 +37,8 @@ func main() {
 				gologging.SetLogLevel(loglevel)
 			}
 
+			ctx.configs = c.StringSlice("config")
+
 			return nil
 		},
 	}

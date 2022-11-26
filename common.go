@@ -6,9 +6,18 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func getConfigFiles(c *cli.Context) []string {
+type Context struct {
+	app     *cli.App
+	configs []string
+}
+
+func (me *Context) addCommand(cmd *cli.Command) {
+	me.app.Commands = append(me.app.Commands, cmd)
+}
+
+func (me *Context) getConfigFiles(c *cli.Context) []string {
 	defaultFile := "dotbot.yaml"
-	ret := c.StringSlice("config")
+	ret := me.configs
 
 	if len(ret) == 0 {
 		st, err := os.Stat(defaultFile)
@@ -18,12 +27,4 @@ func getConfigFiles(c *cli.Context) []string {
 		}
 	}
 	return ret
-}
-
-type Context struct {
-	app *cli.App
-}
-
-func (me *Context) addCommand(cmd *cli.Command) {
-	me.app.Commands = append(me.app.Commands, cmd)
 }

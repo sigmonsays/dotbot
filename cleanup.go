@@ -15,7 +15,7 @@ func (me *Cleanup) Flags() []cli.Flag {
 }
 
 func (me *Cleanup) Run(c *cli.Context) error {
-	configfiles := getConfigFiles(c)
+	configfiles := me.ctx.getConfigFiles(c)
 
 	for _, filename := range configfiles {
 		err := me.RunFile(filename)
