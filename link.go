@@ -107,7 +107,7 @@ func CreateLinks(opts *LinkOptions, run *Run) error {
 	for _, li := range run.Links {
 		if opts.Pretend {
 			if li.NeedsCreate {
-				log.Infof("create link %q %q", li.AbsLink, li.Target)
+				log.Infof("pretend create link %q %q", li.AbsLink, li.Target)
 			}
 			continue
 		}
@@ -164,7 +164,6 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 	if err != nil {
 		return err
 	}
-
 
 	// build config using current directory listing
 	for _, filename := range filenames {
