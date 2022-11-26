@@ -59,6 +59,10 @@ With automode, no configuration file is required, instead a configuration is aut
 
 The `.git` file name is ignored.
 
+automode works with pretend mode
+
+     dotbot link -a -p
+
 # Usage
 
      NAME:
