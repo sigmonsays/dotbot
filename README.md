@@ -35,6 +35,8 @@ If no configuration file is given, the default is assumed to be
      
 # Configuration
 
+A configuration file is optional if automode is used. 
+
 dotbot -c is used to provide what configuration to run. Multiple configuration
 files can be specified by passing -c with a file multiple times.
 
@@ -49,6 +51,13 @@ Sample configuration
          ~/.bash_profile: .bash_profile
          ~/.bashrc: .bashrc
 
+# AutoMode
+
+Auto mode is enabled by passing `--auto` or `-a` to `dotbot link`
+
+With automode, no configuration file is required, instead a configuration is automatically generated at runtime. The current directory is used as a file list. 
+
+The `.git` file name is ignored.
 
 # Usage
 
