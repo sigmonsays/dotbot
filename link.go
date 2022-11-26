@@ -24,21 +24,28 @@ func (me *Link) Flags() []cli.Flag {
 			Usage:   "pretend mode",
 			Aliases: []string{"p"},
 		},
+		&cli.BoolFlag{
+			Name:    "auto",
+			Usage:   "auto mode",
+			Aliases: []string{"a"},
+		},
 	}
 	return nil
 }
 
 type LinkOptions struct {
-	Pretend bool
+	Pretend  bool
+	AutoMode bool
 }
 
 func (me *Link) Run(c *cli.Context) error {
 	opts := &LinkOptions{}
 	configfiles := getConfigFiles(c)
 	opts.Pretend = c.Bool("pretend")
+	opts.AutoMode = c.Bool("auto")
 	log.Tracef("%d files to execute", len(configfiles))
 
-	if len(configfiles) == 0 {
+	if len(configfiles) == 0 && opts.AutoMode == false {
 		log.Warnf("Nothing to do, try passing -c dotbot.yaml ")
 		return nil
 	}
@@ -47,6 +54,13 @@ func (me *Link) Run(c *cli.Context) error {
 		err := me.RunFile(opts, filename)
 		if err != nil {
 			log.Warnf("RunFile %s: %s", filename, err)
+		}
+	}
+
+	if opts.AutoMode {
+		err := me.RunAutoMode(opts)
+		if err != nil {
+			log.Warnf("RunAutoMode: %s", err)
 		}
 	}
 
@@ -64,6 +78,10 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 		cfg.PrintConfig()
 	}
 
+	return me.RunConfig(opts, cfg)
+}
+
+func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 	run, err := CompileRun(cfg.Symlinks)
 	if err != nil {
 		return err
@@ -74,7 +92,17 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 		return err
 	}
 
-	created := 0
+	err = CreateLinks(opts, run)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func CreateLinks(opts *LinkOptions, run *Run) error {
+	var (
+		err     error
+		created int
+	)
 
 	for _, li := range run.Links {
 		if opts.Pretend {
@@ -102,9 +130,7 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 	if created > 0 {
 		log.Infof("created %d links", created)
 	}
-
 	return nil
-
 }
 
 func Mkdirs(homedir string, paths []string) error {
@@ -124,5 +150,39 @@ func Mkdirs(homedir string, paths []string) error {
 			os.MkdirAll(path, dirMode)
 		}
 	}
+	return nil
+}
+
+func (me *Link) RunAutoMode(opts *LinkOptions) error {
+	cfg := GetDefaultConfig()
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	filenames, err := ListDir(cwd)
+	if err != nil {
+		return err
+	}
+
+
+	// build config using current directory listing
+	for _, filename := range filenames {
+		if filename == ".git" {
+			continue
+		}
+		cfg.Symlinks["~/"+filename] = filename
+	}
+
+	run, err := CompileRun(cfg.Symlinks)
+	if err != nil {
+		return err
+	}
+
+	err = CreateLinks(opts, run)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

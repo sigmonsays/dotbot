@@ -37,6 +37,10 @@ func (me *Cleanup) RunFile(path string) error {
 	if log.IsTrace() {
 		cfg.PrintConfig()
 	}
+	return me.RunConfig(cfg)
+}
+
+func (me *Cleanup) RunConfig(cfg *AppConfig) error {
 
 	run, err := CompileRun(cfg.Symlinks)
 	if err != nil {
