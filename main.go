@@ -12,6 +12,7 @@ func main() {
 
 	ctx := &Context{}
 	link := &Link{ctx}
+	unlink := &Unlink{ctx}
 	status := &Status{ctx}
 	cleanup := &Cleanup{ctx}
 
@@ -49,6 +50,13 @@ func main() {
 		Usage:   "create symlinks",
 		Action:  link.Run,
 		Flags:   link.Flags(),
+	})
+	ctx.addCommand(&cli.Command{
+		Name:    "unlink",
+		Aliases: []string{"u"},
+		Usage:   "remove symlinks",
+		Action:  unlink.Run,
+		Flags:   unlink.Flags(),
 	})
 	ctx.addCommand(&cli.Command{
 		Name:    "status",
