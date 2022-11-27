@@ -33,6 +33,11 @@ func (me *Status) Run(c *cli.Context) error {
 	asJson := c.Bool("json")
 	showAll := c.Bool("all")
 
+	if len(configfiles) == 0 {
+		log.Warnf("Nothing to do, try passing -c dotbot.yaml ")
+		return nil
+	}
+
 	for _, filename := range configfiles {
 		err := me.RunFile(filename, asJson, showAll)
 		if err != nil {

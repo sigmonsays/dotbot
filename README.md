@@ -7,6 +7,7 @@
 - [dotbot](#dotbot)
 - [TLDR](#tldr)
 - [Configuration](#configuration)
+- [AutoMode](#automode)
 - [Usage](#usage)
 
 <!-- markdown-toc end -->
@@ -32,7 +33,20 @@ Run dotbot to make links
 If no configuration file is given, the default is assumed to be
      
      dotbot -c dotbot.yaml link
+
+To see what needs to be done (pretend mode)
+
+     dotbot -c dotbot.yaml link -p
+
+To remove links
      
+     dotbot unlink
+
+To see status 
+
+     dotbot status    # Table output
+     dotbot status -j # As json
+
 # Configuration
 
 A configuration file is optional if automode is used. 
@@ -73,7 +87,8 @@ automode works with pretend mode
      
      COMMANDS:
         link, l    create symlinks
-        status, s  print status as json
+        unlink, u  remove symlinks
+        status, s  print status table
         cleanup    show unreferenced files
         help, h    Shows a list of commands or help for one command
      
