@@ -1,16 +1,9 @@
 mkdirs:
   - ~/asdf
 symlinks:
-    ~/.aws: .aws
-    ~/.bash_core: .bash_core
-    ~/.bash_profile: .bash_profile
-    ~/.bashrc: .bashrc
-    ~/.bashrc.d: .bashrc.d
-    ~/.inputrc: .inputrc
     ~/bin: bin
-    ~/.gitconfig: .gitconfig
-    ~/.profile: .profile
-    ~/.tmux.conf: .tmux.conf
-
+    ~/.bashrc: bashrc
+    ~/.gitconfig: gitconfig
+    ~/.tmux.conf: tmux.conf
 
 # EOF

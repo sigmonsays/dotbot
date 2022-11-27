@@ -1,5 +1,5 @@
 # TODO
-- [ ] File removal
+- [x] File removal
 - [ ] Run scripts
 - [ ] Templates 
 - [ ] secret protection
