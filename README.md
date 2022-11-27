@@ -73,7 +73,8 @@ automode works with pretend mode
      
      COMMANDS:
         link, l    create symlinks
-        status, s  print status as json
+        unlink, u  remove symlinks
+        status, s  print status table
         cleanup    show unreferenced files
         help, h    Shows a list of commands or help for one command
      
