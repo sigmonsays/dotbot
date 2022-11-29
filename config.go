@@ -12,6 +12,16 @@ import (
 type AppConfig struct {
 	Mkdirs   []string          `yaml:"mkdirs"`
 	Symlinks map[string]string `yaml:"symlinks"`
+	Script   []*Script         `yaml:"script"`
+}
+
+type Script struct {
+	Id      string
+	Command string
+	Disabled bool
+
+	// post or pre; default is 'post'
+	Type string
 }
 
 func (c *AppConfig) LoadYaml(path string) error {

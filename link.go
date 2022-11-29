@@ -82,7 +82,12 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 }
 
 func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
+	if err != nil {
+		return err
+	}
+
+	err = RunScripts(opts, run, "post")
 	if err != nil {
 		return err
 	}
@@ -93,6 +98,11 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 	}
 
 	err = CreateLinks(opts, run)
+	if err != nil {
+		return err
+	}
+
+	err = RunScripts(opts, run, "post")
 	if err != nil {
 		return err
 	}
@@ -173,7 +183,7 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
 	}
@@ -182,6 +192,11 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func RunScripts(opts *LinkOptions, run *Run, stype string) error {
 
 	return nil
 }

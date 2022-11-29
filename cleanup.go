@@ -42,7 +42,7 @@ func (me *Cleanup) RunFile(path string) error {
 
 func (me *Cleanup) RunConfig(cfg *AppConfig) error {
 
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
 	}
