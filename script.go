@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 var (
 	DefaultScriptType = "post"
@@ -16,6 +19,9 @@ type Script struct {
 }
 
 func (me *Script) Validate() error {
+	if me.Command == "" {
+		return fmt.Errorf("command is required")
+	}
 	return nil
 }
 
@@ -26,7 +32,17 @@ func (me *Script) SetDefaults() {
 	me.Type = strings.ToLower(me.Type)
 }
 
-func (me *Script) Run() error {
+func (me *Script) Run() (*ScriptResult, error) {
+	ret := &ScriptResult{}
 	log.Tracef("running script %s", me.Id)
-	return nil
+
+	return ret, nil
+}
+
+type ScriptResult struct {
+	ExitCode int
+}
+
+func (me *ScriptResult) String() string {
+	return fmt.Sprintf("exitcode:%d", me.ExitCode)
 }

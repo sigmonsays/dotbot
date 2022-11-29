@@ -203,11 +203,19 @@ func RunScripts(opts *LinkOptions, run *Run, stype string) error {
 			log.Tracef("skip script %s type %s", script.Id, script.Type)
 			continue
 		}
-		err := script.Run()
+		err := script.Validate()
 		if err != nil {
-			log.Warnf("Script %s: %s", script.Id, err)
+			log.Warnf("script %s validate: %s", script.Id, err)
 			continue
 		}
+
+		sres, err := script.Run()
+		if err != nil {
+			log.Warnf("script %s: run: %s", script.Id, err)
+			continue
+		}
+
+		log.Tracef("script %s returned %s", script.Id, sres)
 	}
 
 	return nil
