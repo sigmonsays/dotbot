@@ -197,6 +197,18 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 }
 
 func RunScripts(opts *LinkOptions, run *Run, stype string) error {
+	log.Tracef("running scripts of type %s", stype)
+	for _, script := range run.Script {
+		if script.Type != stype {
+			log.Tracef("skip script %s type %s", script.Id, script.Type)
+			continue
+		}
+		err := script.Run()
+		if err != nil {
+			log.Warnf("Script %s: %s", script.Id, err)
+			continue
+		}
+	}
 
 	return nil
 }

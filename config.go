@@ -15,15 +15,6 @@ type AppConfig struct {
 	Script   []*Script         `yaml:"script"`
 }
 
-type Script struct {
-	Id      string
-	Command string
-	Disabled bool
-
-	// post or pre; default is 'post'
-	Type string
-}
-
 func (c *AppConfig) LoadYaml(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -79,6 +70,13 @@ func (c *AppConfig) LoadDefault() {
 // or abort the loading process
 func (c *AppConfig) FixupConfig() error {
 	// var emptyConfig AppConfig
+
+	for i, s := range c.Script {
+		s.SetDefaults()
+		if s.Id == "" {
+			s.Id = fmt.Sprintf("script%d", i)
+		}
+	}
 
 	return nil
 }
