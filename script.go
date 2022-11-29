@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -35,14 +39,38 @@ func (me *Script) SetDefaults() {
 func (me *Script) Run() (*ScriptResult, error) {
 	ret := &ScriptResult{}
 	log.Tracef("running script %s", me.Id)
+	ctx := context.Background()
+	stdin := bytes.NewBufferString(me.Command)
 
+	cmdline := []string{
+		"/bin/bash",
+		"-",
+	}
+	c := exec.CommandContext(ctx, cmdline[0], cmdline[1:]...)
+	c.Stdin = stdin
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stdout
+	c.Env = os.Environ()
+
+	err := c.Run()
+	if err != nil {
+		if exiterr, ok := err.(*exec.ExitError); ok {
+			ret.Pid = exiterr.Pid()
+			ret.ExitCode = exiterr.ExitCode()
+		}
+	}
+
+	log.Tracef("%s script %s ran, exit code %d",
+		me.Type, me.Id, ret.ExitCode)
 	return ret, nil
 }
 
 type ScriptResult struct {
+	Pid      int
 	ExitCode int
 }
 
 func (me *ScriptResult) String() string {
-	return fmt.Sprintf("exitcode:%d", me.ExitCode)
+	return fmt.Sprintf("pid:%d exitcode:%d",
+		me.Pid, me.ExitCode)
 }

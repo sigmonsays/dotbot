@@ -87,16 +87,24 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 		return err
 	}
 
-	err = RunScripts(opts, run, "post")
-	if err != nil {
-		return err
-	}
-
 	err = Mkdirs(run.HomeDir, cfg.Mkdirs)
 	if err != nil {
 		return err
 	}
 
+	err = DoCreateLinks(opts, run)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DoCreateLinks(opts *LinkOptions, run *Run) error {
+	err := RunScripts(opts, run, "pre")
+	if err != nil {
+		return err
+	}
 	err = CreateLinks(opts, run)
 	if err != nil {
 		return err
@@ -108,6 +116,7 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 	}
 	return nil
 }
+
 func CreateLinks(opts *LinkOptions, run *Run) error {
 	var (
 		err     error
@@ -188,7 +197,7 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		return err
 	}
 
-	err = CreateLinks(opts, run)
+	err = DoCreateLinks(opts, run)
 	if err != nil {
 		return err
 	}
@@ -205,17 +214,17 @@ func RunScripts(opts *LinkOptions, run *Run, stype string) error {
 		}
 		err := script.Validate()
 		if err != nil {
-			log.Warnf("script %s validate: %s", script.Id, err)
+			log.Warnf("%s-script %s validate: %s", script.Type, script.Id, err)
 			continue
 		}
 
 		sres, err := script.Run()
 		if err != nil {
-			log.Warnf("script %s: run: %s", script.Id, err)
+			log.Warnf("%s-script %s: run: %s", script.Type, script.Id, err)
 			continue
 		}
 
-		log.Tracef("script %s returned %s", script.Id, sres)
+		log.Tracef("%s-script %s returned %s", script.Type, script.Id, sres)
 	}
 
 	return nil
