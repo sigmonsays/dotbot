@@ -6,4 +6,12 @@ symlinks:
     ~/.gitconfig: gitconfig
     ~/.tmux.conf: tmux.conf
 
+script:
+  - id: fix-ssh-perms
+    type: post
+    command: |
+      chmod 0400 ~/.ssh/config
+      chmod 0400 ~/.ssh/config.d/*
+
+
 # EOF

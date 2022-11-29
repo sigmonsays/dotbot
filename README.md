@@ -7,6 +7,7 @@
 - [dotbot](#dotbot)
 - [TLDR](#tldr)
 - [Configuration](#configuration)
+- [Scripts](#scripts)
 - [AutoMode](#automode)
 - [Usage](#usage)
 
@@ -64,6 +65,27 @@ Sample configuration
      symlinks:
          ~/.bash_profile: .bash_profile
          ~/.bashrc: .bashrc
+
+# Scripts
+
+A script is a series of shell commands that allow you to run commands
+before or after creating symlinks.
+
+Example
+
+     script:
+      - id: example1
+        type: pre
+        command: |
+          date
+      - id: example2
+        command: |
+          chmod 0400 ~/.ssh/config
+          chmod 0400 ~/.ssh/config.d/*
+
+For the above examples, example1 is a 'pre' script which runs before
+symlinks and example2 is a 'post' script which runs after symlinks.
+By default, when type is not provied, 'post' will be used.
 
 # AutoMode
 

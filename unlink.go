@@ -80,7 +80,7 @@ func (me *Unlink) RunFile(opts *UnlinkOptions, path string) error {
 }
 
 func (me *Unlink) RunConfig(opts *UnlinkOptions, cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (me *Unlink) RunAutoMode(opts *UnlinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
 	}

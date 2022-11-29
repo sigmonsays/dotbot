@@ -19,6 +19,7 @@ func NewRun() *Run {
 type Run struct {
 	HomeDir string
 	Links   []*LinkInfo
+	Script  []*Script
 }
 type LinkInfo struct {
 	OrigTarget  string
@@ -32,8 +33,15 @@ type LinkInfo struct {
 	NeedsCreate bool
 }
 
-func CompileRun(symlinks map[string]string) (*Run, error) {
+func CompileRun(symlinks map[string]string, script []*Script) (*Run, error) {
 	ret := NewRun()
+	ret.Script = make([]*Script, 0)
+	for _, s := range script {
+		if s.Disabled {
+			continue
+		}
+		ret.Script = append(ret.Script, s)
+	}
 
 	for target, link := range symlinks {
 

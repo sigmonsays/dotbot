@@ -82,7 +82,7 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 }
 
 func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
 	}
@@ -92,12 +92,31 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 		return err
 	}
 
+	err = DoCreateLinks(opts, run)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DoCreateLinks(opts *LinkOptions, run *Run) error {
+	err := RunScripts(opts, run, "pre")
+	if err != nil {
+		return err
+	}
 	err = CreateLinks(opts, run)
+	if err != nil {
+		return err
+	}
+
+	err = RunScripts(opts, run, "post")
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
 func CreateLinks(opts *LinkOptions, run *Run) error {
 	var (
 		err     error
@@ -173,14 +192,39 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
-	run, err := CompileRun(cfg.Symlinks)
+	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
 	}
 
-	err = CreateLinks(opts, run)
+	err = DoCreateLinks(opts, run)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func RunScripts(opts *LinkOptions, run *Run, stype string) error {
+	log.Tracef("running scripts of type %s", stype)
+	for _, script := range run.Script {
+		if script.Type != stype {
+			log.Tracef("skip script %s type %s", script.Id, script.Type)
+			continue
+		}
+		err := script.Validate()
+		if err != nil {
+			log.Warnf("%s-script %s validate: %s", script.Type, script.Id, err)
+			continue
+		}
+
+		sres, err := script.Run()
+		if err != nil {
+			log.Warnf("%s-script %s: run: %s", script.Type, script.Id, err)
+			continue
+		}
+
+		log.Tracef("%s-script %s returned %s", script.Type, script.Id, sres)
 	}
 
 	return nil

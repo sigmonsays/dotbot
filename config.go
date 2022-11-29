@@ -12,6 +12,7 @@ import (
 type AppConfig struct {
 	Mkdirs   []string          `yaml:"mkdirs"`
 	Symlinks map[string]string `yaml:"symlinks"`
+	Script   []*Script         `yaml:"script"`
 }
 
 func (c *AppConfig) LoadYaml(path string) error {
@@ -69,6 +70,13 @@ func (c *AppConfig) LoadDefault() {
 // or abort the loading process
 func (c *AppConfig) FixupConfig() error {
 	// var emptyConfig AppConfig
+
+	for i, s := range c.Script {
+		s.SetDefaults()
+		if s.Id == "" {
+			s.Id = fmt.Sprintf("script%d", i)
+		}
+	}
 
 	return nil
 }
