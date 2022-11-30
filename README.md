@@ -82,6 +82,12 @@ Example
         command: |
           chmod 0400 ~/.ssh/config
           chmod 0400 ~/.ssh/config.d/*
+      - id: example3
+        shell: /bin/bash
+        quiet: true
+        command: |
+          set -x
+          date > /tmp/test.txt
 
 For the above examples, example1 is a 'pre' script which runs before
 symlinks and example2 is a 'post' script which runs after symlinks.
