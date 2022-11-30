@@ -124,6 +124,13 @@ func CreateLinks(opts *LinkOptions, run *Run) error {
 	)
 
 	for _, li := range run.Links {
+
+		// validate we are not linking to ourselves
+		if li.AbsLink == li.Target {
+			log.Debugf("Ignoring symlink to self %s", li.AbsLink)
+			continue
+		}
+
 		if opts.Pretend {
 			if li.NeedsCreate {
 				log.Infof("create link %q %q", li.AbsLink, li.Target)
