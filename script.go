@@ -18,7 +18,12 @@ type Script struct {
 	Id       string
 	Command  string
 	Disabled bool
-	Shell    string
+
+	// do not print commands stdout and stderr to logs
+	Quiet bool
+
+	// default shell
+	Shell string
 
 	// post or pre; default is 'post'
 	Type string
@@ -53,8 +58,11 @@ func (me *Script) Run() (*ScriptResult, error) {
 	}
 	c := exec.CommandContext(ctx, cmdline[0], cmdline[1:]...)
 	c.Stdin = stdin
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stdout
+
+	if me.Quiet == false {
+		c.Stdout = os.Stdout
+		c.Stderr = os.Stdout
+	}
 	c.Env = os.Environ()
 
 	err := c.Run()
