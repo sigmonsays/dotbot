@@ -10,13 +10,15 @@ import (
 )
 
 var (
-	DefaultScriptType = "post"
+	DefaultScriptType  = "post"
+	DefaultScriptShell = "/bin/bash"
 )
 
 type Script struct {
 	Id       string
 	Command  string
 	Disabled bool
+	Shell    string
 
 	// post or pre; default is 'post'
 	Type string
@@ -34,6 +36,9 @@ func (me *Script) SetDefaults() {
 		me.Type = DefaultScriptType
 	}
 	me.Type = strings.ToLower(me.Type)
+	if me.Shell == "" {
+		me.Shell = DefaultScriptShell
+	}
 }
 
 func (me *Script) Run() (*ScriptResult, error) {
@@ -43,7 +48,7 @@ func (me *Script) Run() (*ScriptResult, error) {
 	stdin := bytes.NewBufferString(me.Command)
 
 	cmdline := []string{
-		"/bin/bash",
+		me.Shell,
 		"-",
 	}
 	c := exec.CommandContext(ctx, cmdline[0], cmdline[1:]...)
