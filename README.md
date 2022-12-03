@@ -58,8 +58,14 @@ files can be specified by passing -c with a file multiple times.
 If no configuration file is provided, dotbot.yaml is assumed if it exists in the
 current directory.
 
+the clean block indicates directories to clean up broken symlinks (aka, dangling symlinks)
+the tilde (`~`) is automatically expanded to the uses home directory. The path is evaluated
+as a glob so wildcards may be used.
+
 Sample configuration
 
+     clean:
+       - '~'
      mkdirs:
        - ~/asdf
      symlinks:

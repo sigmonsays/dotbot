@@ -28,3 +28,16 @@ func (me *Context) getConfigFiles(c *cli.Context) []string {
 	}
 	return ret
 }
+
+func ListDir(path string) ([]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	names, err := f.Readdirnames(10000)
+	if err != nil {
+		return nil, err
+	}
+	return names, nil
+}

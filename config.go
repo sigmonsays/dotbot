@@ -10,6 +10,7 @@ import (
 
 // main configuration structure
 type AppConfig struct {
+	Clean    []string          `yaml:"clean"`
 	Mkdirs   []string          `yaml:"mkdirs"`
 	Symlinks map[string]string `yaml:"symlinks"`
 	Script   []*Script         `yaml:"script"`
