@@ -323,7 +323,11 @@ func CleanLinksGlob(opts *LinkOptions, dir_pattern string, matches []string) err
 			if dangling && stat_ok == false {
 				log.Tracef("dangling symlink %s is invalid, points to %s",
 					fullpath, link)
+
+				log.Infof("Remove dangling symlink %s", fullpath)
+				os.Remove(fullpath)
 			}
+
 		}
 	}
 	return nil
