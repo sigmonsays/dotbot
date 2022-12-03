@@ -35,7 +35,7 @@ func ListDir(path string) ([]string, error) {
 		return nil, err
 	}
 	defer f.Close()
-	names, err := f.Readdirnames(1000)
+	names, err := f.Readdirnames(10000)
 	if err != nil {
 		return nil, err
 	}

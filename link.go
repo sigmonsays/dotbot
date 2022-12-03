@@ -96,7 +96,7 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 	if err != nil {
 		return err
 	}
-	err = CleanLinks(opts, run)
+	err = CleanLinks(opts, cfg.Clean, run.HomeDir)
 	if err != nil {
 		return err
 	}
@@ -241,6 +241,90 @@ func RunScripts(opts *LinkOptions, run *Run, stype string) error {
 	return nil
 }
 
-func CleanLinks(opts *LinkOptions, run *Run) error {
+// go through each glob and ensure its a directory
+func CleanLinks(opts *LinkOptions, dirs []string, homedir string) error {
+	for _, glob_pattern := range dirs {
+		if strings.HasPrefix(glob_pattern, "~") {
+			glob_pattern = filepath.Join(homedir, glob_pattern[1:])
+		}
+		matches, err := filepath.Glob(glob_pattern)
+		if err != nil {
+			return err
+		}
+		err = CleanLinksGlob(opts, glob_pattern, matches)
+		if err != nil {
+			log.Warnf("Glob %s: %s", glob_pattern, err)
+			continue
+		}
+	}
+
+	return nil
+}
+
+func CleanLinksGlob(opts *LinkOptions, dir_pattern string, matches []string) error {
+	log.Tracef("CleanLinksGlob %s", dir_pattern)
+	for _, filename := range matches {
+		log.Tracef("filename %s", filename)
+
+		st, err := os.Stat(filename)
+		if err != nil {
+			log.Warnf("Stat %s: %s", filename, err)
+			continue
+		}
+		if st.IsDir() == false {
+			continue // we only want directories
+		}
+
+		dir := filename
+
+		ls, err := ListDir(dir)
+		if err != nil {
+			log.Warnf("ListDir %s: %s", dir, err)
+			continue
+		}
+
+		// go through each file and ensure it's a symlink and valid
+		for _, filename := range ls {
+			fullpath := filepath.Join(dir, filename)
+			log.Tracef("clean symlink %s", fullpath)
+
+			// stat the link
+			st, err := os.Lstat(fullpath)
+			if err != nil {
+				log.Warnf("Lstat %s: %s", fullpath, err)
+			}
+			is_symlink := false
+			if err == nil && st.Mode()&os.ModeSymlink == os.ModeSymlink {
+				is_symlink = true
+			}
+
+			// stat the file (and what the link points to)
+			_, err = os.Stat(fullpath)
+			stat_ok := (err == nil)
+
+			// if it's a symlink, get what it points to
+			var link string
+			if is_symlink {
+				link, err = os.Readlink(fullpath)
+				if err != nil {
+					log.Warnf("Readlink %s", err)
+				}
+			}
+			log.Tracef("points to %s", link)
+
+			// check if the symlink points to something invalid
+			dangling := false
+			if is_symlink == true && link != "" {
+				_, err := os.Stat(link)
+				if err != nil {
+					dangling = true
+				}
+			}
+			if dangling && stat_ok == false {
+				log.Tracef("dangling symlink %s is invalid, points to %s",
+					fullpath, link)
+			}
+		}
+	}
 	return nil
 }
