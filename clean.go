@@ -42,6 +42,14 @@ func (me *Clean) RunFile(path string) error {
 
 func (me *Clean) RunConfig(cfg *AppConfig) error {
 
+	err := me.CleanUnreferenced(cfg)
+	if err != nil {
+		log.Warnf("Clean unreferenced %s", err)
+	}
+
+	return nil
+}
+func (me *Clean) CleanUnreferenced(cfg *AppConfig) error {
 	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
@@ -69,17 +77,4 @@ func (me *Clean) RunConfig(cfg *AppConfig) error {
 
 	return nil
 
-}
-
-func ListDir(path string) ([]string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	names, err := f.Readdirnames(1000)
-	if err != nil {
-		return nil, err
-	}
-	return names, nil
 }
