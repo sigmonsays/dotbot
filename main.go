@@ -14,7 +14,7 @@ func main() {
 	link := &Link{ctx}
 	unlink := &Unlink{ctx}
 	status := &Status{ctx}
-	cleanup := &Cleanup{ctx}
+	clean := &Clean{ctx}
 
 	app := &cli.App{
 		Name:  "dotbot",
@@ -66,10 +66,10 @@ func main() {
 		Flags:   status.Flags(),
 	})
 	ctx.addCommand(&cli.Command{
-		Name:   "cleanup",
+		Name:   "clean",
 		Usage:  "show unreferenced files",
-		Action: cleanup.Run,
-		Flags:  cleanup.Flags(),
+		Action: clean.Run,
+		Flags:  clean.Flags(),
 	})
 	app.Run(os.Args)
 }

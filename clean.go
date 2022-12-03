@@ -6,15 +6,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type Cleanup struct {
+type Clean struct {
 	ctx *Context
 }
 
-func (me *Cleanup) Flags() []cli.Flag {
+func (me *Clean) Flags() []cli.Flag {
 	return []cli.Flag{}
 }
 
-func (me *Cleanup) Run(c *cli.Context) error {
+func (me *Clean) Run(c *cli.Context) error {
 	configfiles := me.ctx.getConfigFiles(c)
 
 	for _, filename := range configfiles {
@@ -27,7 +27,7 @@ func (me *Cleanup) Run(c *cli.Context) error {
 	return nil
 }
 
-func (me *Cleanup) RunFile(path string) error {
+func (me *Clean) RunFile(path string) error {
 	log.Tracef("runfile %s", path)
 	cfg := GetDefaultConfig()
 	err := cfg.LoadYaml(path)
@@ -40,7 +40,7 @@ func (me *Cleanup) RunFile(path string) error {
 	return me.RunConfig(cfg)
 }
 
-func (me *Cleanup) RunConfig(cfg *AppConfig) error {
+func (me *Clean) RunConfig(cfg *AppConfig) error {
 
 	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {

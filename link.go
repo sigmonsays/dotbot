@@ -96,6 +96,10 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 	if err != nil {
 		return err
 	}
+	err = CleanLinks(opts, run)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -234,5 +238,9 @@ func RunScripts(opts *LinkOptions, run *Run, stype string) error {
 		log.Tracef("%s-script %s returned %s", script.Type, script.Id, sres)
 	}
 
+	return nil
+}
+
+func CleanLinks(opts *LinkOptions, run *Run) error {
 	return nil
 }
