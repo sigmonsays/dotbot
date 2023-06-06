@@ -1,0 +1,27 @@
+schema = 3
+
+[mod]
+  [mod."github.com/cpuguy83/go-md2man/v2"]
+    version = "v2.0.2"
+    hash = "sha256-OvWCtDsVrYzM84SMQwOXPLBxnWnMC1hDm+KiI6zm3uk="
+  [mod."github.com/mattn/go-runewidth"]
+    version = "v0.0.9"
+    hash = "sha256-dK/kIPe1tcxEubwI4CWfov/HWRBgD/fqlPC3d5i30CY="
+  [mod."github.com/olekukonko/tablewriter"]
+    version = "v0.0.5"
+    hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
+  [mod."github.com/russross/blackfriday/v2"]
+    version = "v2.1.0"
+    hash = "sha256-R+84l1si8az5yDqd5CYcFrTyNZ1eSYlpXKq6nFt4OTQ="
+  [mod."github.com/sigmonsays/go-logging"]
+    version = "v0.0.0-20220128052735-680ed4f96095"
+    hash = "sha256-mSbbRx+LFqAoNoroW4KTDxRkiKVYwp+v9UugnZlfJ8o="
+  [mod."github.com/urfave/cli/v2"]
+    version = "v2.23.5"
+    hash = "sha256-frthWSGLTth+Z6ceN+4wvmjJMpU+ycP1ZVON0Qgvg0U="
+  [mod."github.com/xrash/smetrics"]
+    version = "v0.0.0-20201216005158-039620a65673"
+    hash = "sha256-WGHtW/OkLowkqOYIvXpDOpn9wqdH2+Dyx3+rYwpmvzI="
+  [mod."gopkg.in/yaml.v3"]
+    version = "v3.0.1"
+    hash = "sha256-FqL9TKYJ0XkNwJFnq9j0VvJ5ZUU1RvH/52h/f5bkYAU="
