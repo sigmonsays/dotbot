@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +30,11 @@ func (me *Link) Flags() []cli.Flag {
 			Usage:   "auto mode",
 			Aliases: []string{"a"},
 		},
+		&cli.BoolFlag{
+			Name:  "copy",
+			Usage: "copy file insetad of link",
+			// Aliases: []string{""},
+		},
 	}
 	return nil
 }
@@ -36,6 +42,7 @@ func (me *Link) Flags() []cli.Flag {
 type LinkOptions struct {
 	Pretend  bool
 	AutoMode bool
+	Copy     bool
 }
 
 func (me *Link) Run(c *cli.Context) error {
@@ -43,6 +50,7 @@ func (me *Link) Run(c *cli.Context) error {
 	configfiles := me.ctx.getConfigFiles(c)
 	opts.Pretend = c.Bool("pretend")
 	opts.AutoMode = c.Bool("auto")
+	opts.Copy = c.Bool("copy")
 	log.Tracef("%d files to execute", len(configfiles))
 
 	if len(configfiles) == 0 && opts.AutoMode == false {
@@ -144,15 +152,23 @@ func CreateLinks(opts *LinkOptions, run *Run) error {
 
 		if li.NeedsCreate {
 
-			if li.DestExists {
-				os.Remove(li.Target)
-			}
-
-			log.Infof("symlink %s", li.Target)
-			err = os.Symlink(li.AbsLink, li.Target)
-			if err != nil {
-				log.Warnf("Symlink %s", err)
-				continue
+			if opts.Copy {
+				log.Infof("copy %q -> %q", li.Target, li.AbsLink)
+				err = Copy(li.Target, li.AbsLink)
+				if err != nil {
+					log.Warnf("Copy %s", err)
+					continue
+				}
+			} else {
+				if li.DestExists {
+					os.Remove(li.Target)
+				}
+				log.Infof("symlink %s", li.Target)
+				err = os.Symlink(li.AbsLink, li.Target)
+				if err != nil {
+					log.Warnf("Symlink %s", err)
+					continue
+				}
 			}
 			created++
 		}
@@ -161,6 +177,31 @@ func CreateLinks(opts *LinkOptions, run *Run) error {
 		log.Infof("created %d links", created)
 	}
 	return nil
+}
+
+func Copy(srcpath, dstpath string) (err error) {
+	r, err := os.Open(srcpath)
+	if err != nil {
+		return err
+	}
+	defer r.Close() // ignore error: file was opened read-only.
+
+	w, err := os.Create(dstpath)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		// Report the error from Close, if any,
+		// but do so only if there isn't already
+		// an outgoing error.
+		if c := w.Close(); c != nil && err == nil {
+			err = c
+		}
+	}()
+
+	_, err = io.Copy(w, r)
+	return err
 }
 
 func Mkdirs(homedir string, paths []string) error {
