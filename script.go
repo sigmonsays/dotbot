@@ -11,7 +11,7 @@ import (
 
 var (
 	DefaultScriptType  = "post"
-	DefaultScriptShell = "/bin/bash"
+	DefaultScriptShell = "bash"
 )
 
 type Script struct {
@@ -48,11 +48,19 @@ func (me *Script) SetDefaults() {
 
 func (me *Script) Run() (*ScriptResult, error) {
 	ret := &ScriptResult{}
-	log.Tracef("running script %s", me.Id)
 	ctx := context.Background()
 	stdin := bytes.NewBufferString(me.Command)
 
+	key := fmt.Sprintf("%s/%s", me.Type, me.Id)
+	log.Tracef("running script %s (id:%s type:%s quiet:%v shell:%s)",
+		key, me.Id, me.Type, me.Quiet, me.Shell)
+
+	if log.IsTrace() {
+		log.Tracef("command --- begin ---\n%s\n--- end ---\n", me.Command)
+	}
+
 	cmdline := []string{
+		"/usr/bin/env",
 		me.Shell,
 		"-",
 	}
@@ -71,10 +79,17 @@ func (me *Script) Run() (*ScriptResult, error) {
 			ret.Pid = exiterr.Pid()
 			ret.ExitCode = exiterr.ExitCode()
 		}
+
 	}
 
-	log.Tracef("%s script %s ran, exit code %d",
-		me.Type, me.Id, ret.ExitCode)
+	if c.ProcessState != nil {
+		ret.Pid = c.ProcessState.Pid()
+	}
+	if ret.Pid == 0 {
+		log.Warnf("%s script returned but no pid", key)
+	}
+
+	log.Tracef("%s script ran, exit code %d", key, ret.ExitCode)
 	return ret, nil
 }
 
