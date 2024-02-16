@@ -18,6 +18,8 @@
 simple tool to manage symlinks in $HOME for aiding in keeping dot files in sync on multiple
 machines
 
+Inspired by the python version at https://github.com/anishathalye/dotbot
+
 # TLDR
 
 Create a config file 

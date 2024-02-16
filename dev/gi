@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -x
+go install github.com/sigmonsays/dotbot
