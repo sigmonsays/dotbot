@@ -1,5 +1,6 @@
 
-![build status](https://github.com/sigmonsays/dotbot/actions/workflows/release.yml/badge.svg)
+
+[![Build](https://github.com/sigmonsays/dotbot/actions/workflows/release.yml/badge.svg)](https://github.com/sigmonsays/dotbot/actions/workflows/release.yml)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
