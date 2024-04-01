@@ -50,7 +50,7 @@ func (me *Clean) RunConfig(cfg *AppConfig) error {
 	return nil
 }
 func (me *Clean) CleanUnreferenced(cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks, cfg.Script)
+	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
 	if err != nil {
 		return err
 	}

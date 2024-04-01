@@ -59,7 +59,7 @@ func (me *Status) RunFile(path string, asJson, showAll bool) error {
 		cfg.PrintConfig()
 	}
 
-	run, err := CompileRun(cfg.Symlinks, cfg.Script)
+	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
 	if err != nil {
 		return err
 	}

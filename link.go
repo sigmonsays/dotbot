@@ -99,7 +99,7 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 }
 
 func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks, cfg.Script)
+	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
 	if err != nil {
 		return err
 	}
@@ -113,6 +113,7 @@ func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error 
 	if err != nil {
 		return err
 	}
+
 	err = CleanLinks(opts, cfg.Clean, run.HomeDir)
 	if err != nil {
 		return err
@@ -284,7 +285,7 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
-	run, err := CompileRun(cfg.Symlinks, cfg.Script)
+	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
 	if err != nil {
 		return err
 	}
