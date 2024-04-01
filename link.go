@@ -109,6 +109,35 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 		return err
 	}
 
+	err = me.ProcessIncludes(opts, cfg.Include, run)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (me *Link) ProcessIncludes(opts *LinkOptions, includes []string, run *Run) error {
+	if len(includes) == 0 {
+		log.Tracef("no includes to process")
+		return nil
+	}
+	for _, include := range includes {
+
+		matches, err := filepath.Glob(include)
+		if err != nil {
+			log.Warnf("%s: %", include, err)
+			continue
+		}
+
+		for _, cfgfile := range matches {
+			err := me.RunFile(opts, cfgfile)
+			if err != nil {
+				log.Warnf("RunFile %s: %s", cfgfile, err)
+				continue
+			}
+		}
+	}
 	return nil
 }
 
