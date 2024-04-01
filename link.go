@@ -86,10 +86,19 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 		cfg.PrintConfig()
 	}
 
-	return me.RunConfig(opts, cfg)
+	// change directory to directory of configuration file
+	dir := filepath.Dir(path)
+	err = os.Chdir(dir)
+	if err != nil {
+		log.Errorf("Chdir %s: %s", dir, err)
+		return err
+	}
+	log.Tracef("RunFile %s (in %s)", path, dir)
+
+	return me.RunConfig(path, opts, cfg)
 }
 
-func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
+func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error {
 	run, err := CompileRun(cfg.Symlinks, cfg.Script)
 	if err != nil {
 		return err
@@ -109,7 +118,7 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 		return err
 	}
 
-	err = me.ProcessIncludes(opts, cfg.Include, run)
+	err = me.ProcessIncludes(path, opts, cfg.Include, run)
 	if err != nil {
 		return err
 	}
@@ -117,12 +126,14 @@ func (me *Link) RunConfig(opts *LinkOptions, cfg *AppConfig) error {
 	return nil
 }
 
-func (me *Link) ProcessIncludes(opts *LinkOptions, includes []string, run *Run) error {
+func (me *Link) ProcessIncludes(path string, opts *LinkOptions, includes []string, run *Run) error {
 	if len(includes) == 0 {
-		log.Tracef("no includes to process")
+		log.Tracef("no includes to process in %s", path)
 		return nil
 	}
+
 	for _, include := range includes {
+		log.Tracef("Processing include %s", include)
 
 		matches, err := filepath.Glob(include)
 		if err != nil {
