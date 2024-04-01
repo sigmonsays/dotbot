@@ -33,25 +33,42 @@ type LinkInfo struct {
 	NeedsCreate bool
 }
 
-func CompileRun(symlinks map[string]string, script []*Script) (*Run, error) {
-	ret := NewRun()
-	ret.Script = make([]*Script, 0)
+func CompileRun(symlinks, walkdir map[string]string, script []*Script) (*Run, error) {
+	run := NewRun()
+	run.Script = make([]*Script, 0)
+
+	//  scripts
 	for _, s := range script {
 		if s.Disabled {
 			continue
 		}
-		ret.Script = append(ret.Script, s)
+		run.Script = append(run.Script, s)
 	}
 
+	err := CompileRunSymlinks(run, symlinks)
+	if err != nil {
+		return run, err
+	}
+
+	err = CompileRunWalkDir(run, walkdir)
+	if err != nil {
+		return run, err
+	}
+
+	return run, nil
+}
+func CompileRunSymlinks(run *Run, symlinks map[string]string) error {
+
+	// symlinks
 	for target, link := range symlinks {
 
 		li := &LinkInfo{}
-		ret.Links = append(ret.Links, li)
+		run.Links = append(run.Links, li)
 		li.OrigTarget = target
 
 		// resolve target tilde prefix
 		if strings.HasPrefix(target, "~/") {
-			target = filepath.Join(ret.HomeDir, target[2:])
+			target = filepath.Join(run.HomeDir, target[2:])
 		}
 
 		abslink, err := filepath.Abs(link)
@@ -116,5 +133,27 @@ func CompileRun(symlinks map[string]string, script []*Script) (*Run, error) {
 
 	}
 
-	return ret, nil
+	return nil
+}
+
+func CompileRunWalkDir(run *Run, walkdir map[string]string) error {
+
+	// compile a walkdir into a CompileRunSymlinks
+	symlinks := make(map[string]string, 0)
+
+	for targetdir, srcdir := range walkdir {
+		filenames, err := ListDir(srcdir)
+		if err != nil {
+			log.Warnf("ListDir %s: %s", srcdir, err)
+			continue
+		}
+		for _, filename := range filenames {
+			log.Tracef("ProcessWalkDir %s", filename)
+			src := filepath.Join(srcdir, filename)
+			target := filepath.Join(targetdir, filename)
+			log.Tracef("symlink %s to %s", src, target)
+			symlinks[target] = src
+		}
+	}
+	return CompileRunSymlinks(run, symlinks)
 }
