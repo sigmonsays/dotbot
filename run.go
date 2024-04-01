@@ -147,15 +147,13 @@ func CompileRunWalkDir(run *Run, walkdir map[string]string) error {
 			log.Warnf("ListDir %s: %s", srcdir, err)
 			continue
 		}
-
 		for _, filename := range filenames {
-
 			log.Tracef("ProcessWalkDir %s", filename)
-			src := filename
+			src := filepath.Join(srcdir, filename)
 			target := filepath.Join(targetdir, filename)
-			symlinks[src] = target
+			log.Tracef("symlink %s to %s", src, target)
+			symlinks[target] = src
 		}
-
 	}
 	return CompileRunSymlinks(run, symlinks)
 }
