@@ -14,6 +14,7 @@ type AppConfig struct {
 	Mkdirs   []string          `yaml:"mkdirs"`
 	Symlinks map[string]string `yaml:"symlinks"`
 	Script   []*Script         `yaml:"script"`
+	Include  []string          `yaml:"include"`
 }
 
 func (c *AppConfig) LoadYaml(path string) error {
