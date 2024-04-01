@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/user"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 // main configuration structure
 type AppConfig struct {
+	HomeDir string `yaml:"homedir"`
 	Clean    []string          `yaml:"clean"`
 	Mkdirs   []string          `yaml:"mkdirs"`
 	Symlinks map[string]string `yaml:"symlinks"`
@@ -62,6 +64,13 @@ func (me *AppConfig) PrintConfig() {
 func GetDefaultConfig() *AppConfig {
 	cfg := &AppConfig{}
 	cfg.Symlinks = make(map[string]string, 0)
+
+	// get home dir
+	usr, _ := user.Current()
+	homedir := usr.HomeDir
+	log.Tracef("homedir is %s", homedir)
+	cfg.HomeDir = homedir
+
 	return cfg
 }
 

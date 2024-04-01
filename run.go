@@ -47,11 +47,13 @@ func CompileRun(symlinks, walkdir map[string]string, script []*Script) (*Run, er
 
 	err := CompileRunSymlinks(run, symlinks)
 	if err != nil {
+		log.Warnf("CompileRunSymlinks %s", err)
 		return run, err
 	}
 
 	err = CompileRunWalkDir(run, walkdir)
 	if err != nil {
+		log.Warnf("CompileRunWalkDir %s", err)
 		return run, err
 	}
 
