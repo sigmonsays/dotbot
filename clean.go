@@ -37,20 +37,21 @@ func (me *Clean) RunFile(path string) error {
 	if log.IsTrace() {
 		cfg.PrintConfig()
 	}
-	return me.RunConfig(cfg)
+	return me.RunConfig(cfg, path)
 }
 
-func (me *Clean) RunConfig(cfg *AppConfig) error {
+func (me *Clean) RunConfig(cfg *AppConfig, path string) error {
 
-	err := me.CleanUnreferenced(cfg)
+	err := me.CleanUnreferenced(cfg, path)
 	if err != nil {
 		log.Warnf("Clean unreferenced %s", err)
 	}
 
 	return nil
 }
-func (me *Clean) CleanUnreferenced(cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
+func (me *Clean) CleanUnreferenced(cfg *AppConfig, path string) error {
+
+	run, err := CompileRun(path, cfg.Symlinks, cfg.WalkDir, cfg.Script, cfg.Include)
 	if err != nil {
 		return err
 	}
