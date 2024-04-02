@@ -40,7 +40,6 @@ func (me *Link) Flags() []cli.Flag {
 }
 
 type LinkOptions struct {
-	// Dir      string
 	Pretend  bool
 	AutoMode bool
 	Copy     bool
@@ -93,22 +92,6 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 		log.Errorf("RunConfig %s: %s", path, err)
 		return err
 	}
-
-	// run includes - expand the globs
-	// todo: Trash me.. I think
-	// includes, err := GetIncludes(path, cfg.Include)
-	// if err != nil {
-	// 	log.Errorf("GetIncludes %s: %s", path, err)
-	// 	return err
-	// }
-
-	// for _, include := range includes {
-	// 	err := me.RunFile(opts, include)
-	// 	if err != nil {
-	// 		log.Errorf("RunFile(include) %s: %s", include, err)
-	// 		return err
-	// 	}
-	// }
 
 	return nil
 }
