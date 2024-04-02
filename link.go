@@ -40,7 +40,7 @@ func (me *Link) Flags() []cli.Flag {
 }
 
 type LinkOptions struct {
-	Dir      string
+	// Dir      string
 	Pretend  bool
 	AutoMode bool
 	Copy     bool
@@ -77,8 +77,8 @@ func (me *Link) Run(c *cli.Context) error {
 }
 
 func (me *Link) RunFile(opts *LinkOptions, path string) error {
-
 	log.Tracef("runfile %s", path)
+
 	cfg := GetDefaultConfig()
 	err := cfg.LoadYaml(path)
 	if err != nil {
@@ -95,74 +95,28 @@ func (me *Link) RunFile(opts *LinkOptions, path string) error {
 	}
 
 	// run includes - expand the globs
-	includes, err := me.GetIncludes(path, cfg.Include)
-	if err != nil {
-		log.Errorf("GetIncludes %s: %s", path, err)
-		return err
-	}
+	// todo: Trash me.. I think
+	// includes, err := GetIncludes(path, cfg.Include)
+	// if err != nil {
+	// 	log.Errorf("GetIncludes %s: %s", path, err)
+	// 	return err
+	// }
 
-	for _, include := range includes {
-		err := me.RunFile(opts, include)
-		if err != nil {
-			log.Errorf("RunFile(include) %s: %s", include, err)
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (me *Link) GetIncludes(path string, includes []string) ([]string, error) {
-	ret := make([]string, 0)
-
-	if len(includes) == 0 {
-		log.Tracef("no includes to process in %s", path)
-		return nil, nil
-	}
-	for _, include := range includes {
-		matches, err := filepath.Glob(include)
-		if err != nil {
-			log.Warnf("Glob %s: %", include, err)
-			continue
-		}
-		ret = append(ret, matches...)
-	}
-	return ret, nil
-}
-
-// change directory to a filename
-func ChdirToFile(path string) error {
-	abs, err := filepath.Abs(path)
-	if err != nil {
-		log.Warnf("abs %s: %s", path, err)
-		return err
-	}
-	dir := filepath.Dir(abs)
-	log.Tracef("chdir %s", dir)
-	err = os.Chdir(dir)
-	if err != nil {
-		log.Errorf("Chdir %s: %s", dir, err)
-		return err
-	}
+	// for _, include := range includes {
+	// 	err := me.RunFile(opts, include)
+	// 	if err != nil {
+	// 		log.Errorf("RunFile(include) %s: %s", include, err)
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }
 
 func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error {
 
-	// change dir and then change back before returning
-	dir, _ := os.Getwd()
-	ChdirToFile(path)
-	defer func() {
-		log.Tracef("chdir to old dir %s", dir)
-		os.Chdir(dir)
-	}()
-
-	log.Tracef("RunConfig %s (in %s)", path, dir)
-	opts.Dir = dir
-
 	// compile run
-	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
+	run, err := CompileRun(path, cfg.Symlinks, cfg.WalkDir, cfg.Script, cfg.Include)
 	if err != nil {
 		return err
 	}
@@ -317,7 +271,7 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
-	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
+	run, err := CompileRun("", cfg.Symlinks, cfg.WalkDir, cfg.Script, cfg.Include)
 	if err != nil {
 		return err
 	}

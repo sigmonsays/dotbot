@@ -8,12 +8,13 @@ import (
 )
 
 func NewRun() *Run {
-	ret := &Run{}
+	run := &Run{}
 	usr, _ := user.Current()
 	homedir := usr.HomeDir
 	log.Tracef("homedir is %s", homedir)
-	ret.HomeDir = homedir
-	return ret
+	run.HomeDir = homedir
+	run.Script = make([]*Script, 0)
+	return run
 }
 
 type Run struct {
@@ -33,9 +34,30 @@ type LinkInfo struct {
 	NeedsCreate bool
 }
 
-func CompileRun(symlinks, walkdir map[string]string, script []*Script) (*Run, error) {
+func CompileRun(path string, symlinks, walkdir map[string]string, script []*Script, include []string) (*Run, error) {
 	run := NewRun()
-	run.Script = make([]*Script, 0)
+	err := CompileRunWithRun(run, path, symlinks, walkdir, script, include)
+	if err != nil {
+		return nil, err
+	}
+	return run, nil
+}
+
+func CompileRunWithRun(
+	run *Run,
+	path string,
+	symlinks,
+	walkdir map[string]string,
+	script []*Script,
+	include []string) error {
+
+	// change dir and then change back before returning
+	dir, _ := os.Getwd()
+	ChdirToFile(path)
+	defer func() {
+		log.Tracef("chdir to old dir %s", dir)
+		os.Chdir(dir)
+	}()
 
 	//  scripts
 	for _, s := range script {
@@ -48,17 +70,37 @@ func CompileRun(symlinks, walkdir map[string]string, script []*Script) (*Run, er
 	err := CompileRunSymlinks(run, symlinks)
 	if err != nil {
 		log.Warnf("CompileRunSymlinks %s", err)
-		return run, err
+		return err
 	}
 
 	err = CompileRunWalkDir(run, walkdir)
 	if err != nil {
 		log.Warnf("CompileRunWalkDir %s", err)
-		return run, err
+		return err
 	}
 
-	return run, nil
+	includes, err := GetIncludes(path, include)
+	if err != nil {
+		log.Warnf("GetIncludes %s", err)
+		return err
+	}
+	for _, include := range includes {
+		cfg2 := GetDefaultConfig()
+		err := cfg2.LoadYaml(include)
+		if err != nil {
+			log.Errorf("Include %s: %s", include, err)
+			continue
+		}
+		err = CompileRunWithRun(run, include, cfg2.Symlinks, cfg2.WalkDir, cfg2.Script, cfg2.Include)
+		if err != nil {
+			log.Errorf("Include CompileRunWithRun %s: %s", include, err)
+			continue
+		}
+	}
+
+	return nil
 }
+
 func CompileRunSymlinks(run *Run, symlinks map[string]string) error {
 
 	// symlinks
@@ -158,4 +200,40 @@ func CompileRunWalkDir(run *Run, walkdir map[string]string) error {
 		}
 	}
 	return CompileRunSymlinks(run, symlinks)
+}
+
+func GetIncludes(path string, includes []string) ([]string, error) {
+	ret := make([]string, 0)
+
+	if len(includes) == 0 {
+		log.Tracef("no includes to process in %s", path)
+		return nil, nil
+	}
+	for _, include := range includes {
+		matches, err := filepath.Glob(include)
+		if err != nil {
+			log.Warnf("Glob %s: %", include, err)
+			continue
+		}
+		ret = append(ret, matches...)
+	}
+	return ret, nil
+}
+
+// change directory to a filename
+func ChdirToFile(path string) error {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		log.Warnf("abs %s: %s", path, err)
+		return err
+	}
+	dir := filepath.Dir(abs)
+	log.Tracef("chdir %s", dir)
+	err = os.Chdir(dir)
+	if err != nil {
+		log.Errorf("Chdir %s: %s", dir, err)
+		return err
+	}
+
+	return nil
 }

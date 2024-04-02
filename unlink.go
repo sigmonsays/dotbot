@@ -76,11 +76,11 @@ func (me *Unlink) RunFile(opts *UnlinkOptions, path string) error {
 		cfg.PrintConfig()
 	}
 
-	return me.RunConfig(opts, cfg)
+	return me.RunConfig(opts, cfg, path)
 }
 
-func (me *Unlink) RunConfig(opts *UnlinkOptions, cfg *AppConfig) error {
-	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
+func (me *Unlink) RunConfig(opts *UnlinkOptions, cfg *AppConfig, path string) error {
+	run, err := CompileRun(path, cfg.Symlinks, cfg.WalkDir, cfg.Script, cfg.Include)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (me *Unlink) RunAutoMode(opts *UnlinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 
-	run, err := CompileRun(cfg.Symlinks, cfg.WalkDir, cfg.Script)
+	run, err := CompileRun("", cfg.Symlinks, cfg.WalkDir, cfg.Script, cfg.Include)
 	if err != nil {
 		return err
 	}
