@@ -58,8 +58,8 @@ func (me *Status) RunFile(path string, asJson, showAll bool) error {
 	if log.IsTrace() {
 		cfg.PrintConfig()
 	}
-
-	run, err := CompileRun(path, cfg.Symlinks, cfg.WalkDir, cfg.Script, cfg.Include)
+	p := NewRunParamsConfig(cfg)
+	run, err := CompileRun(path, p)
 	if err != nil {
 		return err
 	}

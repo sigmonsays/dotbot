@@ -26,6 +26,21 @@ func (me *Context) getConfigFiles(c *cli.Context) []string {
 			log.Tracef("loading default %s", defaultFile)
 		}
 	}
+
+	// add any additional files
+	for _, f := range c.Args().Slice() {
+		st, err := os.Stat(f)
+		if err != nil {
+			log.Errorf("Stat %s: %s", f, err)
+			continue
+		}
+		if st.IsDir() {
+			log.Errorf("Stat %s: is a directory", f)
+			continue
+		}
+		ret = append(ret, f)
+	}
+
 	return ret
 }
 
