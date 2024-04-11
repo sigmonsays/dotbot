@@ -21,6 +21,7 @@ type Run struct {
 	HomeDir string
 	Links   []*LinkInfo
 	Script  []*Script
+	Mkdir   []string
 }
 type LinkInfo struct {
 	OrigTarget  string
@@ -34,22 +35,34 @@ type LinkInfo struct {
 	NeedsCreate bool
 }
 
-func CompileRun(path string, symlinks, walkdir map[string]string, script []*Script, include []string) (*Run, error) {
+func NewRunParamsConfig(c *AppConfig) *RunParams {
+	ret := &RunParams{}
+	ret.Symlinks = c.Symlinks
+	ret.Walkdir = c.WalkDir
+	ret.Script = c.Script
+	ret.Mkdir = c.Mkdirs
+	ret.Include = c.Include
+	return ret
+}
+
+type RunParams struct {
+	Symlinks map[string]string
+	Walkdir  map[string]string
+	Script   []*Script
+	Mkdir    []string
+	Include  []string
+}
+
+func CompileRun(path string, p *RunParams) (*Run, error) {
 	run := NewRun()
-	err := CompileRunWithRun(run, path, symlinks, walkdir, script, include)
+	err := CompileRunWithRun(path, run, p)
 	if err != nil {
 		return nil, err
 	}
 	return run, nil
 }
 
-func CompileRunWithRun(
-	run *Run,
-	path string,
-	symlinks,
-	walkdir map[string]string,
-	script []*Script,
-	include []string) error {
+func CompileRunWithRun(path string, run *Run, p *RunParams) error {
 
 	// change dir and then change back before returning
 	dir, _ := os.Getwd()
@@ -59,27 +72,32 @@ func CompileRunWithRun(
 		os.Chdir(dir)
 	}()
 
+	//  mkdirs
+	for _, m := range p.Mkdir {
+		run.Mkdir = append(run.Mkdir, m)
+	}
+
 	//  scripts
-	for _, s := range script {
+	for _, s := range p.Script {
 		if s.Disabled {
 			continue
 		}
 		run.Script = append(run.Script, s)
 	}
 
-	err := CompileRunSymlinks(run, symlinks)
+	err := CompileRunSymlinks(run, p.Symlinks)
 	if err != nil {
 		log.Warnf("CompileRunSymlinks %s", err)
 		return err
 	}
 
-	err = CompileRunWalkDir(run, walkdir)
+	err = CompileRunWalkDir(run, p.Walkdir)
 	if err != nil {
 		log.Warnf("CompileRunWalkDir %s", err)
 		return err
 	}
 
-	includes, err := GetIncludes(path, include)
+	includes, err := GetIncludes(path, p.Include)
 	if err != nil {
 		log.Warnf("GetIncludes %s", err)
 		return err
@@ -91,7 +109,8 @@ func CompileRunWithRun(
 			log.Errorf("Include %s: %s", include, err)
 			continue
 		}
-		err = CompileRunWithRun(run, include, cfg2.Symlinks, cfg2.WalkDir, cfg2.Script, cfg2.Include)
+		p2 := NewRunParamsConfig(cfg2)
+		err = CompileRunWithRun(include, run, p2)
 		if err != nil {
 			log.Errorf("Include CompileRunWithRun %s: %s", include, err)
 			continue
