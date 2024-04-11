@@ -1,11 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
 
 	gologging "github.com/sigmonsays/go-logging"
+)
+
+// These variables are populated by goreleaser when the binary is built.
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 func main() {
@@ -70,6 +78,16 @@ func main() {
 		Usage:  "show unreferenced files",
 		Action: clean.Run,
 		Flags:  clean.Flags(),
+	})
+	ctx.addCommand(&cli.Command{
+		Name:  "version",
+		Usage: "print version",
+		Action: func(c *cli.Context) error {
+			fmt.Printf("version %s\n", version)
+			fmt.Printf("commit  %s\n", commit)
+			fmt.Printf("date    %s\n", date)
+			return nil
+		},
 	})
 	app.Run(os.Args)
 }
