@@ -1,5 +1,6 @@
 mkdirs:
   - ~/asdf
+
 symlinks:
     ~/bin: bin
     ~/.bashrc: bashrc
@@ -8,10 +9,16 @@ symlinks:
 
 script:
   - id: fix-ssh-perms
-    type: post
+    #type: post # This is the default if not given
     command: |
       chmod 0400 ~/.ssh/config
       chmod 0400 ~/.ssh/config.d/*
+  - id: example-pre-script
+    type: pre
+    command: |
+      mkdir -pv ~/random/stuff
 
+walkdirs:
+    ~/bin: bin
 
 # EOF

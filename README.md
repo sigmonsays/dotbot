@@ -74,6 +74,8 @@ Sample configuration
      symlinks:
          ~/.bash_profile: .bash_profile
          ~/.bashrc: .bashrc
+     walkdirs:
+         ~/bin: bin
 
 # Scripts
 
@@ -101,6 +103,12 @@ Example
 For the above examples, example1 is a 'pre' script which runs before
 symlinks and example2 is a 'post' script which runs after symlinks.
 By default, when type is not provied, 'post' will be used.
+
+# WalkDirs
+
+WalkDirs are used to list a directory and apply symlinks for every
+item (path or file) found. This is useful if symlinks need to come 
+from multiple directories and need to be merged into one.
 
 # AutoMode
 
