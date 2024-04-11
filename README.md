@@ -9,6 +9,8 @@
 - [TLDR](#tldr)
 - [Configuration](#configuration)
 - [Scripts](#scripts)
+- [WalkDirs](#walkdirs)
+- [Includes](#includes)
 - [AutoMode](#automode)
 - [Usage](#usage)
 
@@ -34,7 +36,7 @@ Run dotbot to make links
 
      dotbot link
 
-If no configuration file is given, the default is assumed to be
+If no configuration file is given, the default is assumed to be dotbot.yaml
      
      dotbot -c dotbot.yaml link
 
@@ -61,6 +63,10 @@ files can be specified by passing -c with a file multiple times.
 If no configuration file is provided, dotbot.yaml is assumed if it exists in the
 current directory.
 
+Additional configuration files can be provided as positional arguments. This makes for a convenient invocation:
+
+     dotbot link stuff.yaml
+
 the clean block indicates directories to clean up broken symlinks (aka, dangling symlinks)
 the tilde (`~`) is automatically expanded to the uses home directory. The path is evaluated
 as a glob so wildcards may be used.
@@ -74,6 +80,8 @@ Sample configuration
      symlinks:
          ~/.bash_profile: .bash_profile
          ~/.bashrc: .bashrc
+     walkdirs:
+         ~/bin: bin
 
 # Scripts
 
@@ -101,6 +109,27 @@ Example
 For the above examples, example1 is a 'pre' script which runs before
 symlinks and example2 is a 'post' script which runs after symlinks.
 By default, when type is not provied, 'post' will be used.
+
+# WalkDirs
+
+WalkDirs are used to list a directory and apply symlinks for every
+item (path or file) found. This is useful if symlinks need to come 
+from multiple directories and need to be merged into one.
+
+# Includes
+
+Includes allow additional dotfiles to be processed as if they were
+being invoked directly. Include files are processed in order given, 
+after expanding the glob pattern.
+
+Includes are processed after evaluating the contents of the 
+configuration file.
+
+Example
+
+     include:
+       - stuff/foo.yaml
+       - extra/bar*.yaml
 
 # AutoMode
 
