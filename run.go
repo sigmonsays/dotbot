@@ -21,6 +21,7 @@ type Run struct {
 	HomeDir string
 	Links   []*LinkInfo
 	Script  []*Script
+	Mkdir   []string
 }
 type LinkInfo struct {
 	OrigTarget  string
@@ -70,6 +71,11 @@ func CompileRunWithRun(path string, run *Run, p *RunParams) error {
 		log.Tracef("chdir to old dir %s", dir)
 		os.Chdir(dir)
 	}()
+
+	//  mkdirs
+	for _, m := range p.Mkdir {
+		run.Mkdir = append(run.Mkdir, m)
+	}
 
 	//  scripts
 	for _, s := range p.Script {

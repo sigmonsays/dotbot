@@ -105,7 +105,7 @@ func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error 
 		return err
 	}
 
-	err = Mkdirs(run.HomeDir, cfg.Mkdirs)
+	err = Mkdirs(run.HomeDir, run.Mkdir)
 	if err != nil {
 		return err
 	}
