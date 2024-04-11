@@ -9,6 +9,8 @@
 - [TLDR](#tldr)
 - [Configuration](#configuration)
 - [Scripts](#scripts)
+- [WalkDirs](#walkdirs)
+- [Includes](#includes)
 - [AutoMode](#automode)
 - [Usage](#usage)
 
@@ -109,6 +111,21 @@ By default, when type is not provied, 'post' will be used.
 WalkDirs are used to list a directory and apply symlinks for every
 item (path or file) found. This is useful if symlinks need to come 
 from multiple directories and need to be merged into one.
+
+# Includes
+
+Includes allow additional dotfiles to be processed as if they were
+being invoked directly. Include files are processed in order given, 
+after expanding the glob pattern.
+
+Includes are processed after evaluating the contents of the 
+configuration file.
+
+Example
+
+     include:
+       - stuff/foo.yaml
+       - extra/bar*.yaml
 
 # AutoMode
 
