@@ -36,7 +36,7 @@ Run dotbot to make links
 
      dotbot link
 
-If no configuration file is given, the default is assumed to be
+If no configuration file is given, the default is assumed to be dotbot.yaml
      
      dotbot -c dotbot.yaml link
 
@@ -62,6 +62,10 @@ files can be specified by passing -c with a file multiple times.
 
 If no configuration file is provided, dotbot.yaml is assumed if it exists in the
 current directory.
+
+Additional configuration files can be provided as positional arguments. This makes for a convenient invocation:
+
+     dotbot link stuff.yaml
 
 the clean block indicates directories to clean up broken symlinks (aka, dangling symlinks)
 the tilde (`~`) is automatically expanded to the uses home directory. The path is evaluated
