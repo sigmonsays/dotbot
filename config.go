@@ -6,12 +6,21 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/Masterminds/semver"
+
 	yaml "gopkg.in/yaml.v3"
+)
+
+var (
+
+	// the version of config file we support
+	AppVersion = "1.0.0"
 )
 
 // main configuration structure
 type AppConfig struct {
-	HomeDir string `yaml:"homedir"`
+	Version  string            `yaml:"version"`
+	HomeDir  string            `yaml:"homedir"`
 	Clean    []string          `yaml:"clean"`
 	Mkdirs   []string          `yaml:"mkdirs"`
 	Symlinks map[string]string `yaml:"symlinks"`
@@ -40,6 +49,32 @@ func (c *AppConfig) LoadYaml(path string) error {
 		return err
 	}
 
+	err = c.CheckVersion()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *AppConfig) CheckVersion() error {
+	if c.Version == "" {
+		log.Tracef("version is not set, skipping check version")
+		return nil
+	}
+	a, err := semver.NewVersion(AppVersion)
+	if err != nil {
+		return err
+	}
+	b, err := semver.NewVersion(c.Version)
+	if err != nil {
+		return err
+	}
+
+	if a.Compare(b) < 0 {
+		return fmt.Errorf("AppVersion %s is less than config version %s", AppVersion, c.Version)
+	}
+	log.Tracef("app version %s >= config version %s", AppVersion, c.Version)
 	return nil
 }
 
