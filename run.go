@@ -91,6 +91,12 @@ func CompileRunWithRun(path string, run *Run, p *RunParams) error {
 		return err
 	}
 
+	err = CompileRunSops(run, p.Sops)
+	if err != nil {
+		log.Warnf("CompileRunSymlinks %s", err)
+		return err
+	}
+
 	err = CompileRunWalkDir(run, p.Walkdir)
 	if err != nil {
 		log.Warnf("CompileRunWalkDir %s", err)
