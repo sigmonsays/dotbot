@@ -13,7 +13,7 @@
 
 pkgs.buildGoApplication {
   pname = "dotbot";
-  version = "0.0.16";
+  version = "0.0.22";
   pwd = ./.;
   src = ./.;
   modules = ./gomod2nix.toml;

@@ -1,6 +1,9 @@
 schema = 3
 
 [mod]
+  [mod."github.com/Masterminds/semver"]
+    version = "v1.5.0"
+    hash = "sha256-3fEInOXFdzCiGdDZ1s9otEes7VXiL8Q1RVB3zXRPJsQ="
   [mod."github.com/cpuguy83/go-md2man/v2"]
     version = "v2.0.2"
     hash = "sha256-OvWCtDsVrYzM84SMQwOXPLBxnWnMC1hDm+KiI6zm3uk="
