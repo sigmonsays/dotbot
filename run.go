@@ -104,7 +104,17 @@ func CompileRunWithRun(path string, run *Run, p *RunParams) error {
 	}
 	for _, include := range includes {
 		cfg2 := GetDefaultConfig()
-		err := cfg2.LoadYaml(include)
+
+		st, err := os.Stat(include)
+		if err != nil {
+			log.Warnf("Stat %s: %s", include, err)
+			continue
+		}
+		if st.IsDir() {
+			include = include + "/dotbot.yaml"
+		}
+
+		err = cfg2.LoadYaml(include)
 		if err != nil {
 			log.Errorf("Include %s: %s", include, err)
 			continue
