@@ -120,6 +120,11 @@ func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error 
 		return err
 	}
 
+	err = DoSops(opts, cfg.Sops, run.HomeDir)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
