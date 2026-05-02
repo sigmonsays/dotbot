@@ -27,13 +27,19 @@ func (me *Unlink) Flags() []cli.Flag {
 			Usage:   "auto mode",
 			Aliases: []string{"a"},
 		},
+		&cli.StringFlag{
+			Name:    "target-dir",
+			Usage:   "target directory",
+			Aliases: []string{"t"},
+		},
 	}
 	return nil
 }
 
 type UnlinkOptions struct {
-	Pretend  bool
-	AutoMode bool
+	Pretend   bool
+	AutoMode  bool
+	TargetDir string
 }
 
 func (me *Unlink) Run(c *cli.Context) error {
@@ -41,6 +47,8 @@ func (me *Unlink) Run(c *cli.Context) error {
 	configfiles := me.ctx.getConfigFiles(c)
 	opts.Pretend = c.Bool("pretend")
 	opts.AutoMode = c.Bool("auto")
+	opts.TargetDir = c.String("target-dir")
+
 	log.Tracef("%d files to execute", len(configfiles))
 
 	if len(configfiles) == 0 && opts.AutoMode == false {
@@ -56,7 +64,9 @@ func (me *Unlink) Run(c *cli.Context) error {
 	}
 
 	if opts.AutoMode {
-		err := me.RunAutoMode(opts)
+		lopts := &LinkOptions{}
+		lopts.TargetDir = opts.TargetDir
+		err := me.RunAutoMode(opts, lopts)
 		if err != nil {
 			log.Warnf("RunAutoMode: %s", err)
 		}
@@ -81,12 +91,14 @@ func (me *Unlink) RunFile(opts *UnlinkOptions, path string) error {
 
 func (me *Unlink) RunConfig(opts *UnlinkOptions, cfg *AppConfig, path string) error {
 	p := NewRunParamsConfig(cfg)
-	run, err := CompileRun(path, p)
+	lopts := &LinkOptions{}
+	lopts.TargetDir = opts.TargetDir
+	run, err := CompileRun(path, p, lopts)
 	if err != nil {
 		return err
 	}
 
-	err = Mkdirs(run.HomeDir, cfg.Mkdirs)
+	err = Mkdirs(run.GetTargetDir(), cfg.Mkdirs)
 	if err != nil {
 		return err
 	}
@@ -128,7 +140,7 @@ func DoUnlinks(opts *UnlinkOptions, run *Run) error {
 	return nil
 }
 
-func (me *Unlink) RunAutoMode(opts *UnlinkOptions) error {
+func (me *Unlink) RunAutoMode(opts *UnlinkOptions, lopts *LinkOptions) error {
 	cfg := GetDefaultConfig()
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -149,7 +161,7 @@ func (me *Unlink) RunAutoMode(opts *UnlinkOptions) error {
 	}
 
 	p := NewRunParamsConfig(cfg)
-	run, err := CompileRun("", p)
+	run, err := CompileRun("", p, lopts)
 	if err != nil {
 		return err
 	}

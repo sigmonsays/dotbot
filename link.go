@@ -35,14 +35,20 @@ func (me *Link) Flags() []cli.Flag {
 			Usage: "copy file insetad of link",
 			// Aliases: []string{""},
 		},
+		&cli.StringFlag{
+			Name:    "target-dir",
+			Usage:   "override target directory",
+			Aliases: []string{"t"},
+		},
 	}
 	return nil
 }
 
 type LinkOptions struct {
-	Pretend  bool
-	AutoMode bool
-	Copy     bool
+	Pretend   bool
+	AutoMode  bool
+	Copy      bool
+	TargetDir string
 }
 
 func (me *Link) Run(c *cli.Context) error {
@@ -51,6 +57,7 @@ func (me *Link) Run(c *cli.Context) error {
 	opts.Pretend = c.Bool("pretend")
 	opts.AutoMode = c.Bool("auto")
 	opts.Copy = c.Bool("copy")
+	opts.TargetDir = c.String("target-dir")
 	log.Tracef("%d files to execute", len(configfiles))
 
 	if len(configfiles) == 0 && opts.AutoMode == false {
@@ -100,12 +107,12 @@ func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error 
 
 	// compile run
 	p := NewRunParamsConfig(cfg)
-	run, err := CompileRun(path, p)
+	run, err := CompileRun(path, p, opts)
 	if err != nil {
 		return err
 	}
 
-	err = Mkdirs(run.HomeDir, run.Mkdir)
+	err = Mkdirs(opts.TargetDir, run.Mkdir)
 	if err != nil {
 		return err
 	}
@@ -115,7 +122,7 @@ func (me *Link) RunConfig(path string, opts *LinkOptions, cfg *AppConfig) error 
 		return err
 	}
 
-	err = CleanLinks(opts, cfg.Clean, run.HomeDir)
+	err = CleanLinks(opts, cfg.Clean, run.GetTargetDir())
 	if err != nil {
 		return err
 	}
@@ -255,7 +262,7 @@ func (me *Link) RunAutoMode(opts *LinkOptions) error {
 		cfg.Symlinks["~/"+filename] = filename
 	}
 	p := NewRunParamsConfig(cfg)
-	run, err := CompileRun("", p)
+	run, err := CompileRun("", p, opts)
 	if err != nil {
 		return err
 	}
@@ -294,10 +301,10 @@ func RunScripts(opts *LinkOptions, run *Run, stype string) error {
 }
 
 // go through each glob and ensure its a directory
-func CleanLinks(opts *LinkOptions, dirs []string, homedir string) error {
+func CleanLinks(opts *LinkOptions, dirs []string, target_dir string) error {
 	for _, glob_pattern := range dirs {
 		if strings.HasPrefix(glob_pattern, "~") {
-			glob_pattern = filepath.Join(homedir, glob_pattern[1:])
+			glob_pattern = filepath.Join(target_dir, glob_pattern[1:])
 		}
 		matches, err := filepath.Glob(glob_pattern)
 		if err != nil {
