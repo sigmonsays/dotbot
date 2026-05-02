@@ -25,6 +25,11 @@ func (me *Status) Flags() []cli.Flag {
 			Aliases: []string{"a"},
 			Usage:   "show all file status",
 		},
+		&cli.StringFlag{
+			Name:    "target-dir",
+			Usage:   "override target directory",
+			Aliases: []string{"t"},
+		},
 	}
 }
 
@@ -32,6 +37,8 @@ func (me *Status) Run(c *cli.Context) error {
 	configfiles := me.ctx.getConfigFiles(c)
 	asJson := c.Bool("json")
 	showAll := c.Bool("all")
+	opts := &LinkOptions{}
+	opts.TargetDir = c.String("target-dir")
 
 	if len(configfiles) == 0 {
 		log.Warnf("Nothing to do, try passing -c dotbot.yaml ")
@@ -39,7 +46,7 @@ func (me *Status) Run(c *cli.Context) error {
 	}
 
 	for _, filename := range configfiles {
-		err := me.RunFile(filename, asJson, showAll)
+		err := me.RunFile(filename, opts, asJson, showAll)
 		if err != nil {
 			log.Warnf("RunFile %s: %s", filename, err)
 		}
@@ -48,7 +55,7 @@ func (me *Status) Run(c *cli.Context) error {
 	return nil
 }
 
-func (me *Status) RunFile(path string, asJson, showAll bool) error {
+func (me *Status) RunFile(path string, opts *LinkOptions, asJson, showAll bool) error {
 	log.Tracef("runfile %s", path)
 	cfg := GetDefaultConfig()
 	err := cfg.LoadYaml(path)
@@ -59,7 +66,7 @@ func (me *Status) RunFile(path string, asJson, showAll bool) error {
 		cfg.PrintConfig()
 	}
 	p := NewRunParamsConfig(cfg)
-	run, err := CompileRun(path, p)
+	run, err := CompileRun(path, p, opts)
 	if err != nil {
 		return err
 	}

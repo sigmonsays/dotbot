@@ -9,19 +9,32 @@ import (
 
 func NewRun() *Run {
 	run := &Run{}
-	usr, _ := user.Current()
-	homedir := usr.HomeDir
-	log.Tracef("homedir is %s", homedir)
-	run.HomeDir = homedir
 	run.Script = make([]*Script, 0)
 	return run
 }
 
+func (me *Run) GetHomeDir() string {
+	usr, _ := user.Current()
+	homedir := usr.HomeDir
+
+	// os.Getenv("HOME")
+	log.Tracef("homedir is %s", homedir)
+	return homedir
+}
+
+func (me *Run) GetTargetDir() string {
+	if me.TargetDir == "" {
+		return me.GetHomeDir()
+	}
+	return me.TargetDir
+}
+
 type Run struct {
-	HomeDir string
-	Links   []*LinkInfo
-	Script  []*Script
-	Mkdir   []string
+	// HomeDir   string
+	TargetDir string
+	Links     []*LinkInfo
+	Script    []*Script
+	Mkdir     []string
 }
 type LinkInfo struct {
 	OrigTarget  string
@@ -53,8 +66,9 @@ type RunParams struct {
 	Include  []string
 }
 
-func CompileRun(path string, p *RunParams) (*Run, error) {
+func CompileRun(path string, p *RunParams, opts *LinkOptions) (*Run, error) {
 	run := NewRun()
+	run.TargetDir = opts.TargetDir
 	err := CompileRunWithRun(path, run, p)
 	if err != nil {
 		return nil, err
@@ -64,8 +78,10 @@ func CompileRun(path string, p *RunParams) (*Run, error) {
 
 func CompileRunWithRun(path string, run *Run, p *RunParams) error {
 
-	// change dir and then change back before returning
+	// we operate in is the directory next to the config file to resolve paths
+	// we also change dir and then change back before returning
 	dir, _ := os.Getwd()
+
 	ChdirToFile(path)
 	defer func() {
 		log.Tracef("chdir to old dir %s", dir)
@@ -131,6 +147,7 @@ func CompileRunWithRun(path string, run *Run, p *RunParams) error {
 }
 
 func CompileRunSymlinks(run *Run, symlinks map[string]string) error {
+	target_dir := run.GetTargetDir()
 
 	// symlinks
 	for target, link := range symlinks {
@@ -139,9 +156,13 @@ func CompileRunSymlinks(run *Run, symlinks map[string]string) error {
 		run.Links = append(run.Links, li)
 		li.OrigTarget = target
 
-		// resolve target tilde prefix
-		if strings.HasPrefix(target, "~/") {
-			target = filepath.Join(run.HomeDir, target[2:])
+		if run.TargetDir == "" {
+			// resolve target tilde prefix
+			if strings.HasPrefix(target, "~/") {
+				target = filepath.Join(target_dir, target[2:])
+			}
+		} else {
+			target = filepath.Join(run.TargetDir, target)
 		}
 
 		abslink, err := filepath.Abs(link)
